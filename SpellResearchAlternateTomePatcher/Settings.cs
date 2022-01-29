@@ -8,7 +8,6 @@ namespace SpellResearchAlternateTomePatcher
 {
     class Settings
     {
-        //public string espname = "";
         public List<string> pscnames = new();
     }
 }

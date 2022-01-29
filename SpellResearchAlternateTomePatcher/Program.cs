@@ -77,7 +77,6 @@ namespace SpellResearchAlternateTomePatcher
                 }
                 return fixformid(h, mk);
 
-                //return FormKey.Factory(fkeystr);
             }
         }
 
@@ -91,13 +90,6 @@ namespace SpellResearchAlternateTomePatcher
                 n = mnamefix.First().Groups["tomename"].Value.Trim();
             }
 
-            //if (n.Contains("Spell Tome:", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    n = n.Substring("Spell Tome:".Length);
-            //}
-            //else if (n.Contains("Spell Tome", StringComparison.OrdinalIgnoreCase)) {
-            //    n = n.Substring("Spell Tome".Length);
-            //}
             return n;
         }
 
@@ -170,7 +162,6 @@ namespace SpellResearchAlternateTomePatcher
             string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
             List<string> modstopath = new();
             modstopath.Add("iHarvest.esl;SpellResearchiHarvest.psc");
-            //foreach (string modpsc in modstopath)
             foreach (string modpsc in settings.Value.pscnames)
             {
                 Console.WriteLine(modpsc);
@@ -196,7 +187,6 @@ namespace SpellResearchAlternateTomePatcher
                 string[] lines = File.ReadAllLines(scriptPath);
                 int spellcount = 0;
                 Dictionary<string, dynamic> archetypemap = new Dictionary<string, dynamic>();
-                // Regex rx = new Regex("^.*\\(\\s*(?<fid>[a-fA-F0-9]+),\\s\"(?<esp>.*\\.es[pml])\".*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 Regex rx = new Regex("^.*\\(\\s*(?<fid>(0x)?[a-fA-F0-9]+),\\s\"(?<esp>.*\\.es[pml])\".*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 Regex rnamefix = new Regex("^.+\\s+(Tome)\\:?(?<tomename>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -247,15 +237,9 @@ namespace SpellResearchAlternateTomePatcher
                         Console.WriteLine(fkey.ToString());
                         string desc = process_text(archetypemap);
                         var bookLink = new FormLink<IBookGetter>(fkey);
-                        //if (bookLink.TryResolve(lCache, out var bookRecord))
-                        // if (bookLink.TryResolveContext<ISkyrimMod, ISkyrimModGetter, IBook, IBookGetter>(state.LinkCache, out var winningBookRecord))
 
                         if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
                         {
-                            // IBook winningBook = winningBookRecord.GetOrAddAsOverride(state.PatchMod);
-                            // winningBook.Teaches = new BookTeachesNothing();
-                            // winningBook.BookText = "" + PREAMBLE + fix_name(winningBook) + PAGE + desc;
-                            // Console.WriteLine("DESC: {0}", winningBook.BookText);
                             var bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
                             bookOverride.Teaches = new BookTeachesNothing();
                             bookOverride.BookText = "" + PREAMBLE + fix_name(bookRecord, rnamefix) + PAGE + desc;
