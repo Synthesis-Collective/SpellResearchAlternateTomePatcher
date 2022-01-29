@@ -160,8 +160,7 @@ namespace SpellResearchAlternateTomePatcher
             // stuff at the start
             string PREAMBLE = "<font face'$HandwrittenFont'><font size='40'><p align='center'><br>";
             string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
-            List<string> modstopath = new();
-            modstopath.Add("iHarvest.esl;SpellResearchiHarvest.psc");
+
             foreach (string modpsc in settings.Value.pscnames)
             {
                 Console.WriteLine(modpsc);
