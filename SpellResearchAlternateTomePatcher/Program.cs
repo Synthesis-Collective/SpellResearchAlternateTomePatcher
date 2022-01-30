@@ -98,24 +98,24 @@ namespace SpellResearchAlternateTomePatcher
         {
 
             string strbuilder = "";
-            strbuilder += "A " + spell["level"];
-            strbuilder += " spell of the " + spell["skill"] + " school, cast ";
+            strbuilder += "A " + spell["level"].ToLower();
+            strbuilder += " spell of the " + spell["skill"].ToLower() + " school, cast ";
 
             if (spell["casting"].Equals("Concentration"))
-                strbuilder += "through immense Concentration. ";
+                strbuilder += "through immense concentration. ";
             else if (spell["casting"].Equals("FireForget"))
-                strbuilder += "by Firing and Forgetting. ";
+                strbuilder += "by firing and forgetting. ";
 
             for (int i = 0; i < spell["target"].Count; i++) {
                 string a = spell["target"][i];
                 if (a.Equals("Actor"))
-                    strbuilder += "This spell is fired where Aimed. "; 
+                    strbuilder += "This spell is fired where aimed. "; 
                 else if (a.Equals("AOE"))
-                    strbuilder += "This spell has an AREA of Effect. ";
+                    strbuilder += "This spell has an area of effect. ";
                 else if (a.Equals("Location"))
-                    strbuilder += "This spell is cast in a specific Location. ";
+                    strbuilder += "This spell is cast in a specific location. ";
                 else if (a.Equals("Self"))
-                    strbuilder += "This spell is cast on Oneself. ";
+                    strbuilder += "This spell is cast on oneself. ";
             }
 
             if (spell["element"].Count > 0) {
@@ -124,12 +124,12 @@ namespace SpellResearchAlternateTomePatcher
                 // for ([i, e] of spell["element"].entries()) {
                 foreach (string e in spell["element"]) {
                     if (idx == 0)
-                        strbuilder += e;
+                        strbuilder += e.ToLower();
                     else
                         if (idx == spell["element"].Count - 1)
-                            strbuilder += " and " + e;
+                            strbuilder += " and " + e.ToLower();
                         else
-                            strbuilder += ", " + e;
+                            strbuilder += ", " + e.ToLower();
                     idx+=1;
                 }
                 strbuilder += ". ";
@@ -140,12 +140,12 @@ namespace SpellResearchAlternateTomePatcher
                 int idx=0;
                 foreach (string t in spell["technique"]) {
                     if (idx == 0)
-                        strbuilder += t;
+                        strbuilder += t.ToLower();
                     else
                         if (idx == spell["technique"].Count - 1)
-                            strbuilder += " and " + t;
+                            strbuilder += " and " + t.ToLower();
                         else
-                            strbuilder += ", " + t;
+                            strbuilder += ", " + t.ToLower();
                     idx+=1;
                 }
                 strbuilder += ".";
