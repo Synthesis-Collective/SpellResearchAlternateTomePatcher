@@ -293,10 +293,25 @@ namespace SpellResearchAlternateTomePatcher
                             }
 
                             string PREAMBLE = "<br><br><p align=\"center\"><font face='" + font + "'><font size='40'></font>";
+                            string imgpath = "";
+                            if (archetypemap["element"].Count > 0)
+                            {
+                                imgpath = config["Images"]?[archetypemap["element"][0]] ?? "";
+                            }
+                            else if (archetypemap["technique"].Count > 0)
+                            {
+                                imgpath = config["Images"]?[archetypemap["technique"][0]] ?? "";
+                            }
+
+                            string img = "";
+                            if (!imgpath.Equals("")) {
+                                //img = "<br><br><img src='img://textures/interface/exported/widgets/spellresearchbook/textures/archetype_0.dds' height='296' width='296'>";
+                                img = "<br><br><img src='img://" + imgpath + "' height='296' width='296'>";
+                            }
                             string PAGE = "<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'><font size='40'></font>";
                             string POST = "</font></p>";
 
-                            var btext = PREAMBLE + name + PAGE + desc + POST;
+                            var btext = PREAMBLE + name + img + PAGE + desc + POST;
                             btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
                             Console.WriteLine("DESC: {0}", btext);
 
