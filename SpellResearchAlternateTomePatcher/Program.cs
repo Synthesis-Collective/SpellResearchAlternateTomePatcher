@@ -97,13 +97,16 @@ namespace SpellResearchAlternateTomePatcher
         }
 
         // Creates a string description of a spell given its archetypes
-        private static string process_text(Dictionary<string, dynamic> spell)
+        private static string process_text(Dictionary<string, dynamic> spell, JObject config)
         {
 
             string strbuilder = "";
             strbuilder += "A " + spell["level"].ToLower();
-            strbuilder += " spell of the " + spell["skill"].ToLower() + " school, cast ";
-
+            strbuilder += " spell of the ";
+            strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]]??"#000000").ToString() + "'>";
+            strbuilder += spell["skill"].ToLower();
+            strbuilder += "</font><font color='#000000'>";
+            strbuilder += " school, cast ";
             if (spell["casting"].Equals("Concentration"))
                 strbuilder += "through immense concentration. ";
             else if (spell["casting"].Equals("FireForget"))
@@ -242,7 +245,7 @@ namespace SpellResearchAlternateTomePatcher
                         // get formkey for book and get text
                         FormKey fkey = fixformid(fid, modKey);
                         Console.WriteLine(fkey.ToString());
-                        string desc = process_text(archetypemap).Trim();
+                        string desc = process_text(archetypemap, config).Trim();
                         var bookLink = new FormLink<IBookGetter>(fkey);
 
                         if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
@@ -254,7 +257,8 @@ namespace SpellResearchAlternateTomePatcher
 
                             if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont")) {
                                 
-                                char[] separators = new char[] {'!','@','#','$','%','^','&','*','(',')','{','}','[',']','-','=','_','+',':','"',';','\'','<','>',',','.','/','?','~', '0','1','2','3','4','5','6','7','8','9'};
+                                char[] tagsep = new char[] {'<','>','#','0','1','2','3','4','5','6','7','8','9'};
+                                char[] separators = new char[] {'!','@','$','%','^','&','*','(',')','{','}','[',']','-','_','+',':','"',';',',','.','?','~'};
 
                                 desc = desc.ToUpper();
                                 name = name.ToUpper();
@@ -270,14 +274,21 @@ namespace SpellResearchAlternateTomePatcher
                             //string PREAMBLE = "<font face'$HandwrittenFont'><font size='40'><p align='center'><br>";
                             //string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
 
-                            string PREAMBLE = "[pagebreak]<br><br><p align=\"center\"><font face='" + font + "'><font size='40'>";
-                            string PAGE = "<br><br></p></font>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'>";
-                            string POST = "</p></font>";
+                            //string PREAMBLE = "[pagebreak]<br><br><p align=\"center\"><font face='" + font + "'><font size='40'>";
+                            //string PAGE = "<br><br></p></font>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'>";
+                            //string POST = "</p></font>";
+
+                            string PREAMBLE = "<br><br><p align=\"center\"><font face='" + font + "'><font size='40'></font>";
+                            string PAGE = "<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'><font size='40'></font>";
+                            string POST = "</font></p>";
+
+                            var btext = PREAMBLE + name + PAGE + desc + POST;
+                            btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
+                            Console.WriteLine("DESC: {0}", btext);
 
                             var bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
                             bookOverride.Teaches = new BookTeachesNothing();
-                            bookOverride.BookText = "" + PREAMBLE + name + PAGE + desc + POST;
-                            Console.WriteLine("DESC: {0}", bookOverride.BookText);
+                            bookOverride.BookText = btext;
 
                         }
                         else {
