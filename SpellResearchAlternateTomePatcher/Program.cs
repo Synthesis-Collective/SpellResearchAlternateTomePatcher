@@ -126,32 +126,54 @@ namespace SpellResearchAlternateTomePatcher
 
             if (spell["element"].Count > 0) {
                 strbuilder += "Elements of ";
+                strbuilder += "</font>";
                 int idx=0;
                 // for ([i, e] of spell["element"].entries()) {
                 foreach (string e in spell["element"]) {
-                    if (idx == 0)
+                    if (idx == 0) 
+                    {
+                        strbuilder += "<font color='" + (config["Colors"]?[e]??"#000000").ToString() + "'>";
                         strbuilder += e.ToLower();
+                        // strbuilder += "</font><font color='#000000'>";
+                    }
                     else
+                    {
                         if (idx == spell["element"].Count - 1)
-                            strbuilder += " and " + e.ToLower();
+                            strbuilder += " and "; 
                         else
-                            strbuilder += ", " + e.ToLower();
+                            strbuilder += ", ";
+
+                        strbuilder += "<font color='" + (config["Colors"]?[e]??"#000000").ToString() + "'>";
+                        strbuilder += e.ToLower();
+                        //strbuilder += "</font><font color='#000000'>";
+                    }
+                    strbuilder += "</font>";
                     idx+=1;
                 }
                 strbuilder += ". ";
             }
 
             if (spell["technique"].Count > 0) {
+                if (spell["element"].Count > 0) {strbuilder += "<font color='#000000'>";}
                 strbuilder += "The technique to cast this spell is of ";
+                strbuilder += "</font>";
                 int idx=0;
                 foreach (string t in spell["technique"]) {
                     if (idx == 0)
+                    {
+                        strbuilder += "<font color='" + (config["Colors"]?[t]??"#000000").ToString() + "'>";
                         strbuilder += t.ToLower();
+                    }
                     else
+                    {
                         if (idx == spell["technique"].Count - 1)
-                            strbuilder += " and " + t.ToLower();
+                            strbuilder += " and ";
                         else
-                            strbuilder += ", " + t.ToLower();
+                            strbuilder += ", ";
+                        strbuilder += "<font color='" + (config["Colors"]?[t]??"#000000").ToString() + "'>";
+                        strbuilder += t.ToLower();
+                    }
+                    strbuilder += "</font>";
                     idx+=1;
                 }
                 strbuilder += ".";
@@ -269,14 +291,6 @@ namespace SpellResearchAlternateTomePatcher
                                 desc = String.Join("", tempdesc);
                                 name = String.Join("", tempname);
                             }
-
-                            // stuff at the start
-                            //string PREAMBLE = "<font face'$HandwrittenFont'><font size='40'><p align='center'><br>";
-                            //string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
-
-                            //string PREAMBLE = "[pagebreak]<br><br><p align=\"center\"><font face='" + font + "'><font size='40'>";
-                            //string PAGE = "<br><br></p></font>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'>";
-                            //string POST = "</p></font>";
 
                             string PREAMBLE = "<br><br><p align=\"center\"><font face='" + font + "'><font size='40'></font>";
                             string PAGE = "<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'><font size='40'></font>";
