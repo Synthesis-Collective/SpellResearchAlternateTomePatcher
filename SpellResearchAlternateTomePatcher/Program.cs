@@ -163,6 +163,8 @@ namespace SpellResearchAlternateTomePatcher
 
             foreach (string modpsc in settings.Value.pscnames)
             {
+                if (modpsc.Trim().Equals("")) {continue;}
+                
                 Console.WriteLine(modpsc);
 
                 string modname = modpsc.Split(";")[0].Trim();
