@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Order;
 
+using Newtonsoft.Json.Linq;
+
 namespace SpellResearchAlternateTomePatcher
 {
 
@@ -30,6 +32,7 @@ namespace SpellResearchAlternateTomePatcher
                 .Run(args);
 
         }
+
 
         // fixes some things with formids in spellresearch scripts and returns a formkey
         private static FormKey fixformid(string fid, ModKey mk) {
@@ -157,9 +160,12 @@ namespace SpellResearchAlternateTomePatcher
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
 
-            // stuff at the start
-            string PREAMBLE = "<font face'$HandwrittenFont'><font size='40'><p align='center'><br>";
-            string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
+
+            string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
+            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Required settings missing! {extraSettingsPath}");
+            var configText = File.ReadAllText(extraSettingsPath);
+            var config = JObject.Parse(configText);
+
 
             foreach (string modpsc in settings.Value.pscnames)
             {
@@ -236,14 +242,41 @@ namespace SpellResearchAlternateTomePatcher
                         // get formkey for book and get text
                         FormKey fkey = fixformid(fid, modKey);
                         Console.WriteLine(fkey.ToString());
-                        string desc = process_text(archetypemap);
+                        string desc = process_text(archetypemap).Trim();
                         var bookLink = new FormLink<IBookGetter>(fkey);
 
                         if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
                         {
+
+
+                            var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
+                            var name = fix_name(bookRecord, rnamefix);
+
+                            if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont")) {
+                                
+                                char[] separators = new char[] {'!','@','#','$','%','^','&','*','(',')','{','}','[',']','-','=','_','+',':','"',';','\'','<','>',',','.','/','?','~', '0','1','2','3','4','5','6','7','8','9'};
+
+                                desc = desc.ToUpper();
+                                name = name.ToUpper();
+
+                                string[] tempdesc = desc.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                                string[] tempname = name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+                                desc = String.Join("", tempdesc);
+                                name = String.Join("", tempname);
+                            }
+
+                            // stuff at the start
+                            //string PREAMBLE = "<font face'$HandwrittenFont'><font size='40'><p align='center'><br>";
+                            //string PAGE = "<br><br>[pagebreak]<br><br><font face'$HandwrittenFont'><font size='20'><p align='left'><br><br>";
+
+                            string PREAMBLE = "[pagebreak]<br><br><p align=\"center\"><font face='" + font + "'><font size='40'>";
+                            string PAGE = "<br><br></p></font>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'>";
+                            string POST = "</p></font>";
+
                             var bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
                             bookOverride.Teaches = new BookTeachesNothing();
-                            bookOverride.BookText = "" + PREAMBLE + fix_name(bookRecord, rnamefix) + PAGE + desc;
+                            bookOverride.BookText = "" + PREAMBLE + name + PAGE + desc + POST;
                             Console.WriteLine("DESC: {0}", bookOverride.BookText);
 
                         }

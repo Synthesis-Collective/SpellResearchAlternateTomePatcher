@@ -1,0 +1,16 @@
+{
+    "Colors" : {
+        "Alteration" : "#00FF00",
+        "Conjuration" : "#A020F0",
+        "Destruction" : "#FF0000",
+        "Illusion" : "#0000FF",
+        "Restoration" : "#FFFFFF"
+    },
+    "Fonts" : {
+        "Novice" : "$HandwrittenFont",
+        "Apprentice" : "$SkyrimBooks",
+        "Adept" : "$SkyrimBooks",
+        "Expert" : "$FalmerFont",
+        "Master" : "$MageScriptFont"
+    }
+}
