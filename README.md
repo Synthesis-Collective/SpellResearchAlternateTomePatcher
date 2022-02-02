@@ -19,9 +19,15 @@ The fonts can be any of:
 See https://www.creationkit.com/index.php?title=Book for depictions. You can probably also make and addyour own fonts.
 
 The image will be based on the first archetype found from elements/techniques, a mapping of archetypes to images can be found in the file config.json located in the synthesis patcher data folder. In order for the images to show correctly, the path must direct to a dds/png file, it must also start with the root folder textures. e.g.\
-"textures/interface/exported/widgets/spellresearchbook/textures/archetype_2.dds". The set of textures in the default config file is from the mod [Spell Research - Experience Book](https://www.nexusmods.com/skyrimspecialedition/mods/28355). Note the root folder for the textures in that mod is 'interface', so in order for those to work you have to extract them from the bsa and copy the interfaces folder into a new folder called 'textures'\
+"textures/interface/exported/widgets/spellresearchbook/textures/archetype_2.dds". The set of textures in the default config file is from the mod [Spell Research - Experience Book](https://www.nexusmods.com/skyrimspecialedition/mods/28355). Note the root folder for the textures in that mod is 'interface', so in order for those to work you have to extract them from the bsa and copy the interfaces folder into a new folder called 'textures'
 
 The archetype colors are also defined in the config file, any hexadecimal representation will do.
+<!-- ![book1](https://user-images.githubusercontent.com/98627298/152105281-5a76f057-09d2-4d8e-bd68-a1c397f2629c.JPG) -->
+<!-- ![book2](https://user-images.githubusercontent.com/98627298/152105316-1c2db180-470f-4e80-a54d-a1ee1534b0a6.JPG) -->
+<p float="left">
+<img src="https://user-images.githubusercontent.com/98627298/152105281-5a76f057-09d2-4d8e-bd68-a1c397f2629c.JPG" width="400">
+<img src="https://user-images.githubusercontent.com/98627298/152105316-1c2db180-470f-4e80-a54d-a1ee1534b0a6.JPG" width="400">  
+</p>
 
 ## Description
 Same as the [zEdit patcher](https://www.nexusmods.com/skyrimspecialedition/mods/39301), but in Synthesis.
