@@ -1,0 +1,30 @@
+{
+  "novice": {
+    "font": "$HandwrittenFont",
+    "useFontColor": false,
+    "useImage": false
+  },
+  "apprentice": {
+    "font": "$SkyrimBooks",
+    "useFontColor": true,
+    "useImage": false
+  },
+  "adept": {
+    "font": "$SkyrimBooks",
+    "useFontColor": true,
+    "useImage": true
+  },
+  "Expert": {
+    "font": "$FalmerFont",
+    "useFontColor": true,
+    "useImage": true
+  },
+  "Master": {
+    "font": "$MageScriptFont",
+    "useFontColor": true,
+    "useImage": true
+  },
+  "pscnames": [
+    "Skyrim.esm;_SR_ImportSkyrim.psc"
+  ]
+}

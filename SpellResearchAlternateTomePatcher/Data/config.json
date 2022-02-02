@@ -113,12 +113,5 @@
         "Summoning":"textures/interface/exported/widgets/spellresearchbook/textures/archetype_57.dds", 
         "Telekinesis":"textures/interface/exported/widgets/spellresearchbook/textures/archetype_58.dds", 
         "Transform":"textures/interface/exported/widgets/spellresearchbook/textures/archetype_59.dds"
-    },
-    "Fonts" : {
-        "Novice" : "$HandwrittenFont",
-        "Apprentice" : "$SkyrimBooks",
-        "Adept" : "$SkyrimBooks",
-        "Expert" : "$FalmerFont",
-        "Master" : "$MageScriptFont"
     }
 }
