@@ -104,7 +104,6 @@ namespace SpellResearchAlternateTomePatcher
             string strbuilder = "";
             strbuilder += "A " + spell["level"].ToLower();
             strbuilder += " spell of the ";
-            //strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]]??"#000000").ToString() + "'>";
             if (s.useFontColor) {
                 strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]] ?? "#000000").ToString() + "'>";
             }
@@ -135,13 +134,11 @@ namespace SpellResearchAlternateTomePatcher
                 strbuilder += "Elements of ";
                 strbuilder += "</font>";
                 int idx=0;
-                // for ([i, e] of spell["element"].entries()) {
                 foreach (string e in spell["element"]) {
                     if (idx == 0) 
                     {
                         strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>";
                         strbuilder += e.ToLower();
-                        // strbuilder += "</font><font color='#000000'>";
                     }
                     else
                     {
@@ -152,7 +149,6 @@ namespace SpellResearchAlternateTomePatcher
 
                         strbuilder += "<font color='" + (config["Colors"]?[e]??"#000000").ToString() + "'>";
                         strbuilder += e.ToLower();
-                        //strbuilder += "</font><font color='#000000'>";
                     }
                     strbuilder += "</font>";
                     idx+=1;
