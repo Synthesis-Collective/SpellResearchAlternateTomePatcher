@@ -1,4 +1,28 @@
 # SpellResearchAlternateTomePatcher
+
+## Update - Fonts, Colors, and Images
+Make sure to reload your settings if you used this patcher before.\
+For each skill level, you have the option to select the following:\
+- Text Font
+- Whether the books will have an image
+- Whether the text archetypes will be colored
+
+The fonts can be any of:
+- $SkyrimBooks
+- $HandwrittenFont
+- $DaedricFont
+- $DragonFont
+- $DragonFont
+- $FalmerFont
+- $MageScriptFont
+
+See https://www.creationkit.com/index.php?title=Book for depictions. You can probably also make and addyour own fonts.
+
+The image will be based on the first archetype found from elements/techniques, a mapping of archetypes to images can be found in the file config.json located in the synthesis patcher data folder. In order for the images to show correctly, the path must direct to a dds/png file, it must also start with the root folder textures. e.g.\
+"textures/interface/exported/widgets/spellresearchbook/textures/archetype_2.dds". The set of textures in the default config file is from the mod [Spell Research - Experience Book](https://www.nexusmods.com/skyrimspecialedition/mods/28355). Note the root folder for the textures in that mod is 'interface', so in order for those to work you have to extract them from the bsa and copy the interfaces folder into a new folder called 'textures'\
+
+The archetype colors are also defined in the config file, any hexadecimal representation will do.
+
 ## Description
 Same as the [zEdit patcher](https://www.nexusmods.com/skyrimspecialedition/mods/39301), but in Synthesis.
 
@@ -19,19 +43,19 @@ A Adept spell of the Conjuration school, cast by Firing and Forgetting. This spe
 
 
 ## Usage
-Usage:
-Add mods to be patched in the settings using the format: espname:scriptname
+Select what formats you want for each skill level, see update notes for details.\
+Add mods to be patched in the setting 'Pscnames' using the format: espname:scriptname
 
-e.g.
-Skyrim.esm;_SR_ImportSkyrim.psc
-Dawnguard.esm;_SR_ImportDawnguard.psc
-Dragonborn.esm;_SR_ImportDragonborn.psc
+Pscnames example\
+Skyrim.esm;_SR_ImportSkyrim.psc\
+Dawnguard.esm;_SR_ImportDawnguard.psc\
+Dragonborn.esm;_SR_ImportDragonborn.psc\
 Inigo.esp;SpellResearchInigo.psc
 
 The scripts need to exists in Data/Scripts/Source/*.psc
 
-e.g.
-data/scripts/source/_SR_ImportSkyrim.psc
+e.g.\
+data/scripts/source/_SR_ImportSkyrim.psc\
 data/scripts/source/_SR_ImportDawnguard.psc
 
 ## Reccommendations
