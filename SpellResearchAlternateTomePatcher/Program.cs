@@ -132,12 +132,12 @@ namespace SpellResearchAlternateTomePatcher
 
             if (spell["element"].Count > 0) {
                 strbuilder += "Elements of ";
-                strbuilder += "</font>";
+                if (s.useFontColor) { strbuilder += "</font>"; }
                 int idx=0;
                 foreach (string e in spell["element"]) {
                     if (idx == 0) 
                     {
-                        strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>";
+                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>"; }
                         strbuilder += e.ToLower();
                     }
                     else
@@ -147,24 +147,24 @@ namespace SpellResearchAlternateTomePatcher
                         else
                             strbuilder += ", ";
 
-                        strbuilder += "<font color='" + (config["Colors"]?[e]??"#000000").ToString() + "'>";
+                        if (s.useFontColor) {strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>";}
                         strbuilder += e.ToLower();
                     }
-                    strbuilder += "</font>";
+                    if (s.useFontColor) { strbuilder += "</font>"; }
                     idx+=1;
                 }
                 strbuilder += ". ";
             }
 
             if (spell["technique"].Count > 0) {
-                if (spell["element"].Count > 0) {strbuilder += "<font color='#000000'>";}
+                if (spell["element"].Count > 0 && s.useFontColor) {strbuilder += "<font color='#000000'>";}
                 strbuilder += "The technique to cast this spell is of ";
-                strbuilder += "</font>";
+                if (s.useFontColor) { strbuilder += "</font>"; }
                 int idx=0;
                 foreach (string t in spell["technique"]) {
                     if (idx == 0)
                     {
-                        strbuilder += "<font color='" + (config["Colors"]?[t]??"#000000").ToString() + "'>";
+                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[t] ?? "#000000").ToString() + "'>"; }
                         strbuilder += t.ToLower();
                     }
                     else
@@ -173,10 +173,10 @@ namespace SpellResearchAlternateTomePatcher
                             strbuilder += " and ";
                         else
                             strbuilder += ", ";
-                        strbuilder += "<font color='" + (config["Colors"]?[t]??"#000000").ToString() + "'>";
+                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[t] ?? "#000000").ToString() + "'>"; }
                         strbuilder += t.ToLower();
                     }
-                    strbuilder += "</font>";
+                    if (s.useFontColor) { strbuilder += "</font>"; }
                     idx+=1;
                 }
                 strbuilder += ".";
