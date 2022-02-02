@@ -97,15 +97,22 @@ namespace SpellResearchAlternateTomePatcher
         }
 
         // Creates a string description of a spell given its archetypes
-        private static string process_text(Dictionary<string, dynamic> spell, JObject config)
+        private static string process_text(Dictionary<string, dynamic> spell, JObject config, LevelSettings s)
         {
+
 
             string strbuilder = "";
             strbuilder += "A " + spell["level"].ToLower();
             strbuilder += " spell of the ";
-            strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]]??"#000000").ToString() + "'>";
+            //strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]]??"#000000").ToString() + "'>";
+            if (s.useFontColor) {
+                strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]] ?? "#000000").ToString() + "'>";
+            }
             strbuilder += spell["skill"].ToLower();
-            strbuilder += "</font><font color='#000000'>";
+            if (s.useFontColor)
+            {
+                strbuilder += "</font><font color='#000000'>";
+            }
             strbuilder += " school, cast ";
             if (spell["casting"].Equals("Concentration"))
                 strbuilder += "through immense concentration. ";
@@ -132,7 +139,7 @@ namespace SpellResearchAlternateTomePatcher
                 foreach (string e in spell["element"]) {
                     if (idx == 0) 
                     {
-                        strbuilder += "<font color='" + (config["Colors"]?[e]??"#000000").ToString() + "'>";
+                        strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>";
                         strbuilder += e.ToLower();
                         // strbuilder += "</font><font color='#000000'>";
                     }
@@ -267,14 +274,24 @@ namespace SpellResearchAlternateTomePatcher
                         // get formkey for book and get text
                         FormKey fkey = fixformid(fid, modKey);
                         Console.WriteLine(fkey.ToString());
-                        string desc = process_text(archetypemap, config).Trim();
                         var bookLink = new FormLink<IBookGetter>(fkey);
 
                         if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
                         {
 
+                            LevelSettings s;
+                            if (archetypemap["level"].Equals("Novice")) { s = settings.Value.novice; }
+                            else if (archetypemap["level"].Equals("Apprentice")) { s = settings.Value.apprentice; }
+                            else if (archetypemap["level"].Equals("Adept")) { s = settings.Value.adept; }
+                            else if (archetypemap["level"].Equals("Expert")) { s = settings.Value.Expert; }
+                            else if (archetypemap["level"].Equals("Master")) { s = settings.Value.Master; }
+                            else {
+                                s = new();
+                            }
+                            string desc = process_text(archetypemap, config, s).Trim();
 
-                            var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
+                            var font = s.font;
+                            //var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
                             var name = fix_name(bookRecord, rnamefix);
 
                             if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont")) {
@@ -294,19 +311,23 @@ namespace SpellResearchAlternateTomePatcher
 
                             string PREAMBLE = "<br><br><p align=\"center\"><font face='" + font + "'><font size='40'></font>";
                             string imgpath = "";
-                            if (archetypemap["element"].Count > 0)
-                            {
-                                imgpath = config["Images"]?[archetypemap["element"][0]] ?? "";
-                            }
-                            else if (archetypemap["technique"].Count > 0)
-                            {
-                                imgpath = config["Images"]?[archetypemap["technique"][0]] ?? "";
-                            }
-
                             string img = "";
-                            if (!imgpath.Equals("")) {
-                                //img = "<br><br><img src='img://textures/interface/exported/widgets/spellresearchbook/textures/archetype_0.dds' height='296' width='296'>";
-                                img = "<br><br><img src='img://" + imgpath + "' height='296' width='296'>";
+
+                            if (s.useImage)
+                            {
+                                if (archetypemap["element"].Count > 0)
+                                {
+                                    imgpath = config["Images"]?[archetypemap["element"][0]] ?? "";
+                                }
+                                else if (archetypemap["technique"].Count > 0)
+                                {
+                                    imgpath = config["Images"]?[archetypemap["technique"][0]] ?? "";
+                                }
+
+                                if (!imgpath.Equals(""))
+                                {
+                                    img = "<br><br><img src='img://" + imgpath + "' height='296' width='296'>";
+                                }
                             }
                             string PAGE = "<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='" + font + "'><font size='40'></font>";
                             string POST = "</font></p>";
