@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Order;
+using Mutagen.Bethesda.Plugins.Records;
 
 using Newtonsoft.Json.Linq;
 
@@ -33,6 +34,47 @@ namespace SpellResearchAlternateTomePatcher
 
         }
 
+
+        private static IBookGetter? fixformidandresolve(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, ModKey mk, string fid)
+        {
+
+            var fkey = fixformid(fid, mk);
+
+            var bookLink = new FormLink<IBookGetter>(fkey);
+
+
+            // if things are normal
+            if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
+            {
+                return bookRecord;
+            }
+            
+            //if things are messed up 
+            else
+            {
+                Console.WriteLine("WARNING: problem with {0}", fkey);
+                Console.WriteLine("mk: {0}", mk);
+
+                var mod = state.LoadOrder.TryGetValue(mk);
+                var masters = mod?.Mod?.ModHeader.MasterReferences ?? new List<MasterReference>();
+
+                foreach (var master in masters)
+                {
+                    var mfkey = fixformid(fid, master.Master);
+                    Console.WriteLine("Trying {0} with {1}", fkey, mfkey);
+                    var mbookLink = new FormLink<IBookGetter>(mfkey);
+                    if (mbookLink.TryResolve(state.LinkCache, out var masterBookRecord))
+                    {
+                        Console.WriteLine("Fixed {0} with {1}", fkey, mfkey);
+                        return masterBookRecord;
+                    }
+
+                }
+            }
+
+            Console.WriteLine("ERROR: Could not fix {0}", fkey);
+            return null;
+        }
 
         // fixes some things with formids in spellresearch scripts and returns a formkey
         private static FormKey fixformid(string fid, ModKey mk) {
@@ -268,11 +310,15 @@ namespace SpellResearchAlternateTomePatcher
                             continue;
                         }
                         // get formkey for book and get text
-                        FormKey fkey = fixformid(fid, modKey);
-                        Console.WriteLine(fkey.ToString());
-                        var bookLink = new FormLink<IBookGetter>(fkey);
+                        //FormKey fkey = fixformid(fid, modKey);
+                        //FormKey fkey = fixformidandresolve(state, modKey, fid);
+                        IBookGetter? bookRecord = fixformidandresolve(state, modKey, fid);
 
-                        if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
+                        //Console.WriteLine(fkey.ToString());
+                        //var bookLink = new FormLink<IBookGetter>(fkey);
+
+                        //if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
+                        if (bookRecord != null)
                         {
 
                             LevelSettings s;
@@ -338,7 +384,7 @@ namespace SpellResearchAlternateTomePatcher
 
                         }
                         else {
-                            Console.WriteLine("ERROR: Could Not Resolve {0}", fkey.ToString());
+                            Console.WriteLine("ERROR: Could Not Resolve {0}", fid);
                         } 
 
                     }
