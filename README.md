@@ -1,5 +1,7 @@
 # SpellResearchAlternateTomePatcher
 
+Make sure you are using the required, or later version of mutagen, patching with mutagen versions prior to the required version will cause CTD's.
+
 ## Update - Fonts, Colors, and Images
 Make sure to reload your settings if you used this patcher before.\
 For each skill level, you have the option to select the following:\
