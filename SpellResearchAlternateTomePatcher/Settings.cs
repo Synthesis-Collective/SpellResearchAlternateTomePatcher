@@ -14,6 +14,8 @@ namespace SpellResearchAlternateTomePatcher
         public LevelSettings Expert = new();
         public LevelSettings Master = new();
         public List<string> pscnames = new();
+        public List<string> jsonNames = new();
+        public List<string> jsonPaths = new();
     }
 
     public class LevelSettings

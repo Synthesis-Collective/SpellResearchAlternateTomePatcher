@@ -26,5 +26,12 @@
   },
   "pscnames": [
     "Skyrim.esm;_SR_ImportSkyrim.psc"
+  ],
+  "jsonNames": [
+    "MysticismMagic.esp;SKSE/Plugins/SpellResearchImport/MysticismMagic/SR_ImportMysticism.json"
+  ],
+  "jsonPaths": [
+    "SpellResearch",
+    "SKSE/Plugins/SpellResearchImport"
   ]
 }
