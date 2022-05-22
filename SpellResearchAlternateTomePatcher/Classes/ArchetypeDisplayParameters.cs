@@ -1,6 +1,6 @@
 namespace SpellResearchAlternateTomePatcher.Classes
 {
-    public class Archetype
+    public class ArchetypeDisplayParameters
     {
         public string? Name { get; set; }
         public string? Color { get; set; }

@@ -15,6 +15,7 @@ using Mutagen.Bethesda.Plugins.Records;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using SpellResearchAlternateTomePatcher.Classes;
+using Newtonsoft.Json;
 
 namespace SpellResearchAlternateTomePatcher
 {
@@ -242,11 +243,15 @@ namespace SpellResearchAlternateTomePatcher
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
+            string archetypeListPath = Path.Combine(state.ExtraSettingsDataPath, "archetypes.json");
+            if (!File.Exists(archetypeListPath)) throw new ArgumentException($"Archetype list information missing! {archetypeListPath}");
+            ArchetypeList? allowedArchetypes = JsonConvert.DeserializeObject<ArchetypeList>(File.ReadAllText(archetypeListPath));
+            if (allowedArchetypes == null) throw new ArgumentException($"Error reading archetype list");
             string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
-            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Required settings missing! {extraSettingsPath}");
+            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
             string configText = File.ReadAllText(extraSettingsPath);
-            JsonConfig jconfig = JsonConfig.From(configText);
-            foreach (Archetype archetype in jconfig.Archetypes.Values)
+            ArchetypeVisualInfo archconfig = ArchetypeVisualInfo.From(configText);
+            foreach (ArchetypeDisplayParameters archetype in archconfig.Archetypes.Values)
             {
                 Console.WriteLine($"Archetype {archetype.Name}: Color {archetype.Color}, Image {archetype.Image}");
             }
@@ -272,6 +277,22 @@ namespace SpellResearchAlternateTomePatcher
                 {
                     Console.WriteLine($"JSON file {jsonPath} not found");
                     continue;
+                }
+                string spellconf = File.ReadAllText(jsonPath);
+                SpellConfiguration spellinfo = SpellConfiguration.From(spellconf, allowedArchetypes);
+                if (spellinfo == null)
+                {
+                    Console.WriteLine("Failed to read JSON");
+                    return;
+                }
+                if (spellinfo.Spells.Count == 0)
+                {
+                    Console.WriteLine("No spells found");
+                    return;
+                }
+                foreach (SpellInfo spell in spellinfo.Spells)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(spell));
                 }
                 processedMods.Add(modName);
             }

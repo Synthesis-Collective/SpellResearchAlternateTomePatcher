@@ -1,0 +1,274 @@
+{
+  "levels": [
+    {
+      "name": "novice",
+      "aliases": []
+    },
+    {
+      "name": "apprentice",
+      "aliases": []
+    },
+    {
+      "name": "adept",
+      "aliases": []
+    },
+    {
+      "name": "expert",
+      "aliases": []
+    },
+    {
+      "name": "master",
+      "aliases": []
+    }
+  ],
+  "castingTypes": [
+    {
+      "name": "concentration",
+      "aliases": []
+    },
+    {
+      "name": "fireandforget",
+      "aliases": []
+    }
+  ],
+  "targets": [
+    {
+      "name": "actor",
+      "aliases": []
+    },
+    {
+      "name": "location",
+      "aliases": []
+    },
+    {
+      "name": "self",
+      "aliases": []
+    },
+    {
+      "name": "area",
+      "aliases": []
+    }
+  ],
+  "skills": [
+    {
+      "name": "alteration",
+      "aliases": []
+    },
+    {
+      "name": "conjuration",
+      "aliases": []
+    },
+    {
+      "name": "destruction",
+      "aliases": []
+    },
+    {
+      "name": "illusion",
+      "aliases": []
+    },
+    {
+      "name": "restoration",
+      "aliases": []
+    }
+  ],
+  "elements": [
+    {
+      "name": "acid",
+      "aliases": []
+    },
+    {
+      "name": "air",
+      "aliases": []
+    },
+    {
+      "name": "apparition",
+      "aliases": []
+    },
+    {
+      "name": "arcane",
+      "aliases": []
+    },
+    {
+      "name": "armor",
+      "aliases": []
+    },
+    {
+      "name": "construct",
+      "aliases": []
+    },
+    {
+      "name": "creature",
+      "aliases": []
+    },
+    {
+      "name": "daedra",
+      "aliases": []
+    },
+    {
+      "name": "disease",
+      "aliases": []
+    },
+    {
+      "name": "earth",
+      "aliases": []
+    },
+    {
+      "name": "fire",
+      "aliases": []
+    },
+    {
+      "name": "flesh",
+      "aliases": []
+    },
+    {
+      "name": "force",
+      "aliases": []
+    },
+    {
+      "name": "frost",
+      "aliases": []
+    },
+    {
+      "name": "health",
+      "aliases": []
+    },
+    {
+      "name": "human",
+      "aliases": []
+    },
+    {
+      "name": "life",
+      "aliases": []
+    },
+    {
+      "name": "light",
+      "aliases": []
+    },
+    {
+      "name": "magicka",
+      "aliases": []
+    },
+    {
+      "name": "metal",
+      "aliases": []
+    },
+    {
+      "name": "nature",
+      "aliases": []
+    },
+    {
+      "name": "poison",
+      "aliases": []
+    },
+    {
+      "name": "resistance",
+      "aliases": []
+    },
+    {
+      "name": "shadow",
+      "aliases": []
+    },
+    {
+      "name": "shield",
+      "aliases": []
+    },
+    {
+      "name": "shock",
+      "aliases": []
+    },
+    {
+      "name": "soul",
+      "aliases": []
+    },
+    {
+      "name": "stamina",
+      "aliases": []
+    },
+    {
+      "name": "sun",
+      "aliases": []
+    },
+    {
+      "name": "time",
+      "aliases": []
+    },
+    {
+      "name": "trap",
+      "aliases": []
+    },
+    {
+      "name": "undead",
+      "aliases": []
+    },
+    {
+      "name": "water",
+      "aliases": []
+    },
+    {
+      "name": "weapon",
+      "aliases": []
+    }
+  ],
+  "techniques": [
+    {
+      "name": "cloak",
+      "aliases": []
+    },
+    {
+      "name": "control",
+      "aliases": []
+    },
+    {
+      "name": "courage",
+      "aliases": []
+    },
+    {
+      "name": "curing",
+      "aliases": []
+    },
+    {
+      "name": "curse",
+      "aliases": []
+    },
+    {
+      "name": "fear",
+      "aliases": []
+    },
+    {
+      "name": "frenzy",
+      "aliases": []
+    },
+    {
+      "name": "infuse",
+      "aliases": []
+    },
+    {
+      "name": "pacify",
+      "aliases": []
+    },
+    {
+      "name": "sense",
+      "aliases": []
+    },
+    {
+      "name": "siphon",
+      "aliases": []
+    },
+    {
+      "name": "strengthen",
+      "aliases": []
+    },
+    {
+      "name": "summoning",
+      "aliases": []
+    },
+    {
+      "name": "telekinesis",
+      "aliases": []
+    },
+    {
+      "name": "transform",
+      "aliases": []
+    }
+  ]
+}
