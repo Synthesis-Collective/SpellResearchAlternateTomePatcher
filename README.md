@@ -1,6 +1,13 @@
+
+
 # SpellResearchAlternateTomePatcher
 
 Make sure you are using the required, or later version of mutagen, patching with mutagen versions prior to the required version will cause CTD's.
+
+# JSON FORK
+
+Intended to support JSON files used by https://www.nexusmods.com/skyrimspecialedition/mods/42381 and https://www.nexusmods.com/skyrimspecialedition/mods/48515.
+Steps past what's been converted are currently commented out, so don't run this branch until this notice is gone.
 
 ## Update - Fonts, Colors, and Images
 Make sure to reload your settings if you used this patcher before.\
