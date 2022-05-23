@@ -26,11 +26,10 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Error reading spell name");
                         continue;
                     }
-                    Console.WriteLine($"Processing spell \"{name}\"");
                     string spellID = (string?)newSpell["spellId"] ?? string.Empty;
                     if (spellID == string.Empty)
                     {
-                        Console.WriteLine("Error reading spell ID");
+                        Console.WriteLine($"Error reading spell ID for {name}");
                         continue;
                     }
                     string skill = (string?)newSpell["school"] ?? string.Empty;
@@ -72,11 +71,6 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Targeting type list not found");
                         continue;
                     }
-                    if (target.Count == 0)
-                    {
-                        Console.WriteLine("Targeting type list empty");
-                        continue;
-                    }
                     List<string> foundTargets = new List<string>();
                     foreach (string? targetType in target)
                     {
@@ -98,11 +92,6 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Element list not found");
                         continue;
                     }
-                    if (elements.Count == 0)
-                    {
-                        Console.WriteLine("Element list empty");
-                        continue;
-                    }
                     List<string> foundElements = new List<string>();
                     foreach (string? element in elements)
                     {
@@ -122,11 +111,6 @@ namespace SpellResearchAlternateTomePatcher.Classes
                     if (techniques == null)
                     {
                         Console.WriteLine("Technique list not found");
-                        continue;
-                    }
-                    if (techniques.Count == 0)
-                    {
-                        Console.WriteLine("Technique list empty");
                         continue;
                     }
                     List<string> foundTechniques = new List<string>();

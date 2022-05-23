@@ -34,7 +34,7 @@
   "targets": [
     {
       "name": "actor",
-      "aliases": []
+      "aliases": ["aimed"]
     },
     {
       "name": "location",
@@ -46,7 +46,7 @@
     },
     {
       "name": "area",
-      "aliases": []
+      "aliases": [ "areaofeffect", "aoe" ]
     }
   ],
   "skills": [
@@ -82,11 +82,11 @@
     },
     {
       "name": "apparition",
-      "aliases": []
+      "aliases": ["apparitions"]
     },
     {
       "name": "arcane",
-      "aliases": []
+      "aliases": ["arcaneEnergy"]
     },
     {
       "name": "armor",
@@ -94,11 +94,11 @@
     },
     {
       "name": "construct",
-      "aliases": []
+      "aliases": ["constructs"]
     },
     {
       "name": "creature",
-      "aliases": []
+      "aliases": ["creatures"]
     },
     {
       "name": "daedra",
@@ -134,7 +134,7 @@
     },
     {
       "name": "human",
-      "aliases": []
+      "aliases": ["mortals"]
     },
     {
       "name": "life",
@@ -166,11 +166,11 @@
     },
     {
       "name": "shadow",
-      "aliases": []
+      "aliases": ["shadows"]
     },
     {
       "name": "shield",
-      "aliases": []
+      "aliases": ["shields"]
     },
     {
       "name": "shock",
@@ -178,7 +178,7 @@
     },
     {
       "name": "soul",
-      "aliases": []
+      "aliases": ["souls"]
     },
     {
       "name": "stamina",
@@ -194,7 +194,7 @@
     },
     {
       "name": "trap",
-      "aliases": []
+      "aliases": ["traps"]
     },
     {
       "name": "undead",
@@ -206,17 +206,17 @@
     },
     {
       "name": "weapon",
-      "aliases": []
+      "aliases": ["weapons"]
     }
   ],
   "techniques": [
     {
       "name": "cloak",
-      "aliases": []
+      "aliases": ["cloaking"]
     },
     {
       "name": "control",
-      "aliases": []
+      "aliases": ["controlling"]
     },
     {
       "name": "courage",
@@ -228,7 +228,7 @@
     },
     {
       "name": "curse",
-      "aliases": []
+      "aliases": ["cursing"]
     },
     {
       "name": "fear",
@@ -240,23 +240,23 @@
     },
     {
       "name": "infuse",
-      "aliases": []
+      "aliases": ["infusing"]
     },
     {
       "name": "pacify",
-      "aliases": []
+      "aliases": ["pacifying"]
     },
     {
       "name": "sense",
-      "aliases": []
+      "aliases": ["sensing"]
     },
     {
       "name": "siphon",
-      "aliases": []
+      "aliases": ["siphoning"]
     },
     {
       "name": "strengthen",
-      "aliases": []
+      "aliases": ["strengthening"]
     },
     {
       "name": "summoning",
@@ -268,7 +268,7 @@
     },
     {
       "name": "transform",
-      "aliases": []
+      "aliases": ["transforming"]
     }
   ]
 }

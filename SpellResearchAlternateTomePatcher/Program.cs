@@ -55,8 +55,6 @@ namespace SpellResearchAlternateTomePatcher
             //if things are messed up 
             else
             {
-                Console.WriteLine("WARNING: problem with {0}", fkey);
-                Console.WriteLine("mk: {0}", mk);
 
                 var mod = state.LoadOrder.TryGetValue(mk);
                 var masters = mod?.Mod?.ModHeader.MasterReferences ?? new List<MasterReference>();
@@ -64,14 +62,11 @@ namespace SpellResearchAlternateTomePatcher
                 foreach (var master in masters)
                 {
                     var mfkey = fixformid(fid, master.Master);
-                    Console.WriteLine("Trying {0} with {1}", fkey, mfkey);
                     var mbookLink = new FormLink<IBookGetter>(mfkey);
                     if (mbookLink.TryResolve(state.LinkCache, out var masterBookRecord))
                     {
-                        Console.WriteLine("Fixed {0} with {1}", fkey, mfkey);
                         return masterBookRecord;
                     }
-
                 }
             }
 
@@ -82,7 +77,6 @@ namespace SpellResearchAlternateTomePatcher
         // fixes some things with formids in spellresearch scripts and returns a formkey
         private static FormKey fixformid(string fid, ModKey mk)
         {
-
             FormKey formKey;
             var fkeystr = fid + ":" + mk.FileName;
 
@@ -251,10 +245,6 @@ namespace SpellResearchAlternateTomePatcher
             if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
             string configText = File.ReadAllText(extraSettingsPath);
             ArchetypeVisualInfo archconfig = ArchetypeVisualInfo.From(configText);
-            foreach (ArchetypeDisplayParameters archetype in archconfig.Archetypes.Values)
-            {
-                Console.WriteLine($"Archetype {archetype.Name}: Color {archetype.Color}, Image {archetype.Image}");
-            }
             List<string> processedMods = new List<string>();
             foreach (string configMod in settings.Value.jsonNames)
             {
@@ -292,7 +282,24 @@ namespace SpellResearchAlternateTomePatcher
                 }
                 foreach (SpellInfo spell in spellinfo.Spells)
                 {
-                    Console.WriteLine(JsonConvert.SerializeObject(spell));
+                    if (string.IsNullOrEmpty(spell.TomeESP)) continue;
+                    bool good_modkey = ModKey.TryFromFileName(spell.TomeESP, out ModKey modKey);
+                    if (!good_modkey)
+                    {
+                        Console.WriteLine($"Could not determine ESP key {spell.SpellESP} for {modName}");
+                        continue;
+                    }
+                    if (spell.TomeFormID != null)
+                    {
+                        IBookGetter? bookRecord = fixformidandresolve(state, modKey, spell.TomeFormID);
+                        if (bookRecord != null)
+                        {
+                        }
+                        else
+                        {
+                            Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeFormID);
+                        }
+                    }
                 }
                 processedMods.Add(modName);
             }
