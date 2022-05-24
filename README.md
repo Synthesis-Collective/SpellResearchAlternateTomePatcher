@@ -1,13 +1,24 @@
+# JSON FORK
 
+Intended to support JSON files used by https://www.nexusmods.com/skyrimspecialedition/mods/42381 and https://www.nexusmods.com/skyrimspecialedition/mods/48515.
+Current functionality:
+1. Reads the JSON file for the Mysticism patch.
+2. Updates the tomes.
+
+Upcoming functionality:
+1. Read the patches of the classic JSON Patch format.
+2. Allow skipping tomes by level - as it stands, this + no starting spells = you're going to need an epic quest (or Faralda and 30 Septims) to unlock your first spell. *Can* it even be done without Fari, anyone mad enough to try?
+3. Restore old PSC file reading, but make it look slightly less awful. Nothing against you, Gutie, everything against Regex, necessary evil though it may be here.
+
+Potential future functionality:
+1. Export the aforementioned PSC's to JSON files that can then be eaten by the JSON Patch.
+2. Update the export engine to support the Mysticism patch's formatting and fish out any changes to vanilla spells similar to it (which will probably only be relevant to Odin users) and create a copy of Kalithnir's plugin to process the newly generated patch.
+
+# Gutie's Legacy - I touched none of this yet
 
 # SpellResearchAlternateTomePatcher
 
 Make sure you are using the required, or later version of mutagen, patching with mutagen versions prior to the required version will cause CTD's.
-
-# JSON FORK
-
-Intended to support JSON files used by https://www.nexusmods.com/skyrimspecialedition/mods/42381 and https://www.nexusmods.com/skyrimspecialedition/mods/48515.
-Steps past what's been converted are currently commented out, so don't run this branch until this notice is gone.
 
 ## Update - Fonts, Colors, and Images
 Make sure to reload your settings if you used this patcher before.\
