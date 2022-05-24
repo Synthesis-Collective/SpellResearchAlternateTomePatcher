@@ -11,7 +11,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
 
         public static SpellConfiguration From(string spellconf, ArchetypeList allowedArchetypes)
         {
-            SpellConfiguration config = new SpellConfiguration();
+            SpellConfiguration config = new();
             JObject data = JObject.Parse(spellconf);
             if (data == null) return config;
             // Mysticism JSON Patch handling
@@ -71,7 +71,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Targeting type list not found");
                         continue;
                     }
-                    List<string> foundTargets = new List<string>();
+                    List<AliasedArchetype> foundTargets = new();
                     foreach (string? targetType in target)
                     {
                         if (string.IsNullOrEmpty(targetType))
@@ -79,12 +79,13 @@ namespace SpellResearchAlternateTomePatcher.Classes
                             Console.WriteLine("Empty targeting type found in list");
                             continue;
                         }
-                        if (!allowedArchetypes.Targets.Any(archetype => archetype.Name.ToLower() == targetType.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == targetType.ToLower())))
+                        AliasedArchetype? arch = allowedArchetypes.Targets.FirstOrDefault(archetype => archetype.Name.ToLower() == targetType.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == targetType.ToLower()));
+                        if (arch == null)
                         {
                             Console.WriteLine($"Targeting type {targetType} not known");
                             continue;
                         }
-                        foundTargets.Add(targetType);
+                        foundTargets.Add(arch);
                     }
                     JArray? elements = (JArray?)newSpell["elements"];
                     if (elements == null)
@@ -92,7 +93,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Element list not found");
                         continue;
                     }
-                    List<string> foundElements = new List<string>();
+                    List<AliasedArchetype> foundElements = new();
                     foreach (string? element in elements)
                     {
                         if (string.IsNullOrEmpty(element))
@@ -100,12 +101,13 @@ namespace SpellResearchAlternateTomePatcher.Classes
                             Console.WriteLine("Empty element found in list");
                             continue;
                         }
-                        if (!allowedArchetypes.Elements.Any(archetype => archetype.Name.ToLower() == element.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == element.ToLower())))
+                        AliasedArchetype? arch = allowedArchetypes.Elements.FirstOrDefault(archetype => archetype.Name.ToLower() == element.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == element.ToLower()));
+                        if (arch == null)
                         {
                             Console.WriteLine($"Element {element} not known");
                             continue;
                         }
-                        foundElements.Add(element);
+                        foundElements.Add(arch);
                     }
                     JArray? techniques = (JArray?)newSpell["techniques"];
                     if (techniques == null)
@@ -113,7 +115,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         Console.WriteLine("Technique list not found");
                         continue;
                     }
-                    List<string> foundTechniques = new List<string>();
+                    List<AliasedArchetype> foundTechniques = new();
                     foreach (string? technique in techniques)
                     {
                         if (string.IsNullOrEmpty(technique))
@@ -121,12 +123,13 @@ namespace SpellResearchAlternateTomePatcher.Classes
                             Console.WriteLine("Empty technique found in list");
                             continue;
                         }
-                        if (!allowedArchetypes.Techniques.Any(archetype => archetype.Name.ToLower() == technique.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == technique.ToLower())))
+                        AliasedArchetype? arch = allowedArchetypes.Techniques.FirstOrDefault(archetype => archetype.Name.ToLower() == technique.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == technique.ToLower()));
+                        if (arch == null)
                         {
                             Console.WriteLine($"Technique {technique} not known");
                             continue;
                         }
-                        foundTechniques.Add(technique);
+                        foundTechniques.Add(arch);
                     }
                     string? tomeID = (string?)newSpell["tomeId"];
                     string? scrollID = (string?)newSpell["scrollId"];

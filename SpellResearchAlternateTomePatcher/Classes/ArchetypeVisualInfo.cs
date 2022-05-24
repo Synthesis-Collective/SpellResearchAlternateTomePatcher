@@ -21,37 +21,37 @@ namespace SpellResearchAlternateTomePatcher.Classes
             if (colors == null) return config;
             foreach (JProperty archColor in colors)
             {
-                if (!config.Archetypes.ContainsKey(archColor.Name))
+                if (!config.Archetypes.ContainsKey(archColor.Name.ToLower()))
                 {
-                    config.Archetypes[archColor.Name] = new ArchetypeDisplayParameters
+                    config.Archetypes[archColor.Name.ToLower()] = new ArchetypeDisplayParameters
                     {
-                        Name = archColor.Name
+                        Name = archColor.Name.ToLower()
                     };
                 }
-                if (config.Archetypes[archColor.Name].Color != null)
+                if (config.Archetypes[archColor.Name.ToLower()].Color != null)
                 {
                     Console.WriteLine($"Duplicate color entry for archetype {archColor.Name}!");
                 }
-                config.Archetypes[archColor.Name].Color = archColor.Value.ToString();
+                config.Archetypes[archColor.Name.ToLower()].Color = archColor.Value.ToString();
             }
             JToken? images = data["Images"];
             if (images == null) return config;
             foreach (JProperty archImage in images)
             {
-                if (!config.Archetypes.ContainsKey(archImage.Name))
+                if (!config.Archetypes.ContainsKey(archImage.Name.ToLower()))
                 {
                     Console.WriteLine($"Archetype {archImage.Name} found in image list but not in color list!");
-                    config.Archetypes[archImage.Name] = new ArchetypeDisplayParameters
+                    config.Archetypes[archImage.Name.ToLower()] = new ArchetypeDisplayParameters
                     {
                         Name = archImage.Name,
                         Color = "#000000"
                     };
                 }
-                if (config.Archetypes[archImage.Name].Image != null)
+                if (config.Archetypes[archImage.Name.ToLower()].Image != null)
                 {
                     Console.WriteLine($"Duplicate image entry for archetype {archImage.Name}!");
                 }
-                config.Archetypes[archImage.Name].Image = archImage.Value.ToString();
+                config.Archetypes[archImage.Name.ToLower()].Image = archImage.Value.ToString();
             }
             return config;
         }

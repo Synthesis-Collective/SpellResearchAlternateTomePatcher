@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SpellResearchAlternateTomePatcher.Classes
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class ArchetypeList
+    public partial class ArchetypeList
     {
         [JsonProperty(PropertyName = "levels")]
         public List<AliasedArchetype> Levels { get; set; } = new List<AliasedArchetype>();
@@ -22,14 +22,5 @@ namespace SpellResearchAlternateTomePatcher.Classes
         public List<AliasedArchetype> Elements { get; set; } = new List<AliasedArchetype>();
         [JsonProperty(PropertyName = "techniques")]
         public List<AliasedArchetype> Techniques { get; set; } = new List<AliasedArchetype>();
-
-        [JsonObject(MemberSerialization.OptIn)]
-        public class AliasedArchetype
-        {
-            [JsonProperty(PropertyName = "name")]
-            public string Name { get; set; } = "";
-            [JsonProperty(PropertyName = "aliases")]
-            public List<string> Aliases { get; set; } = new List<string>();
-        }
     }
 }

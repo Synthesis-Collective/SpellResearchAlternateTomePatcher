@@ -139,94 +139,127 @@ namespace SpellResearchAlternateTomePatcher
 
             return n;
         }
+        private static readonly string[] wovels = { "a", "e", "i", "o", "u" };
 
         // Creates a string description of a spell given its archetypes
-        private static string process_text(Dictionary<string, dynamic> spell, JObject config, LevelSettings s)
+        private static string process_text(SpellInfo spell, ArchetypeVisualInfo archetypemap, LevelSettings s)
         {
-
-
             string strbuilder = "";
-            strbuilder += "A " + spell["level"].ToLower();
-            strbuilder += " spell of the ";
+            strbuilder += $"{(wovels.Contains(spell.Tier[0..1]) ? "An " : "A ")}{spell.Tier[0..1].ToUpper() + spell.Tier[1..]} spell of the ";
             if (s.useFontColor)
             {
-                strbuilder += "<font color='" + (config["Colors"]?[spell["skill"]] ?? "#000000").ToString() + "'>";
+                strbuilder += $"<font color='{(archetypemap.Archetypes[spell.School.ToLower()].Color ?? "#000000")}'>";
             }
-            strbuilder += spell["skill"].ToLower();
+            strbuilder += spell.School[0..1].ToUpper() + spell.School[1..];
             if (s.useFontColor)
             {
                 strbuilder += "</font><font color='#000000'>";
             }
-            strbuilder += " school, cast ";
-            if (spell["casting"].Equals("Concentration"))
-                strbuilder += "through immense concentration. ";
-            else if (spell["casting"].Equals("FireForget"))
-                strbuilder += "by firing and forgetting. ";
-
-            for (int i = 0; i < spell["target"].Count; i++)
+            strbuilder += " school, ";
+            switch (spell.CastingType)
             {
-                string a = spell["target"][i];
-                if (a.Equals("Actor"))
-                    strbuilder += "This spell is fired where aimed. ";
-                else if (a.Equals("AOE"))
-                    strbuilder += "This spell has an area of effect. ";
-                else if (a.Equals("Location"))
-                    strbuilder += "This spell is cast in a specific location. ";
-                else if (a.Equals("Self"))
-                    strbuilder += "This spell is cast on oneself. ";
+                case "concentration":
+                    {
+                        strbuilder += "cast through steady concentration. ";
+                        break;
+                    }
+                case "fireandforget":
+                    {
+                        strbuilder += "cast in a single moment. ";
+                        break;
+                    }
+                default:
+                    break;
             }
 
-            if (spell["element"].Count > 0)
+            foreach (AliasedArchetype target in spell.Targeting)
             {
-                strbuilder += "Elements of ";
-                if (s.useFontColor) { strbuilder += "</font>"; }
-                int idx = 0;
-                foreach (string e in spell["element"])
+                switch (target.Name.ToLower())
                 {
-                    if (idx == 0)
-                    {
-                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>"; }
-                        strbuilder += e.ToLower();
-                    }
-                    else
-                    {
-                        if (idx == spell["element"].Count - 1)
-                            strbuilder += " and ";
-                        else
-                            strbuilder += ", ";
+                    case "actor":
+                        {
 
-                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[e] ?? "#000000").ToString() + "'>"; }
-                        strbuilder += e.ToLower();
+                            strbuilder += "This spell is fired where aimed. ";
+                            break;
+                        }
+                    case "area":
+                        {
+                            strbuilder += "This spell has an area of effect. ";
+                            break;
+                        }
+                    case "location":
+                        {
+                            strbuilder += "This spell is cast in a specific location. ";
+                            break;
+                        }
+                    case "self":
+                        {
+                            strbuilder += "This spell is cast on oneself. ";
+                            break;
+                        }
+                    default: break;
+                }
+            }
+
+            if (spell.Elements.Count > 0)
+            {
+                strbuilder += $"Channels the element{(spell.Elements.Count > 1 ? "s" : string.Empty)} of ";
+                if (s.useFontColor)
+                {
+                    strbuilder += "</font>";
+                }
+                int idx = 0;
+                foreach (AliasedArchetype e in spell.Elements)
+                {
+                    if (idx > 0 && idx == spell.Elements.Count - 1)
+                        strbuilder += " and ";
+                    else if (idx > 0)
+                    {
+                        strbuilder += ", ";
                     }
-                    if (s.useFontColor) { strbuilder += "</font>"; }
+                    if (s.useFontColor)
+                    {
+                        strbuilder += $"<font color='{archetypemap.Archetypes[e.Name.ToLower()]?.Color ?? "#000000"}'>";
+                    }
+                    strbuilder += e.Name[0..1].ToUpper() + e.Name[1..];
+                    if (s.useFontColor)
+                    {
+                        strbuilder += "</font>";
+                    }
                     idx += 1;
                 }
                 strbuilder += ". ";
             }
 
-            if (spell["technique"].Count > 0)
+            if (spell.Techniques.Count > 0)
             {
-                if (spell["element"].Count > 0 && s.useFontColor) { strbuilder += "<font color='#000000'>"; }
-                strbuilder += "The technique to cast this spell is of ";
-                if (s.useFontColor) { strbuilder += "</font>"; }
-                int idx = 0;
-                foreach (string t in spell["technique"])
+                if (spell.Elements.Count > 0 && s.useFontColor)
                 {
-                    if (idx == 0)
+                    strbuilder += "<font color='#000000'>";
+                }
+                strbuilder += $"Utilizes the technique{(spell.Techniques.Count > 1 ? s : string.Empty)} of ";
+                if (s.useFontColor)
+                {
+                    strbuilder += "</font>";
+                }
+                int idx = 0;
+                foreach (AliasedArchetype t in spell.Techniques)
+                {
+                    if (idx > 0 && idx == spell.Techniques.Count - 1)
+                        strbuilder += " and ";
+                    else if (idx > 0)
                     {
-                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[t] ?? "#000000").ToString() + "'>"; }
-                        strbuilder += t.ToLower();
+                        strbuilder += ", ";
                     }
-                    else
+                    if (s.useFontColor)
                     {
-                        if (idx == spell["technique"].Count - 1)
-                            strbuilder += " and ";
-                        else
-                            strbuilder += ", ";
-                        if (s.useFontColor) { strbuilder += "<font color='" + (config["Colors"]?[t] ?? "#000000").ToString() + "'>"; }
-                        strbuilder += t.ToLower();
+                        strbuilder += $"<font color='{archetypemap.Archetypes[t.Name.ToLower()]?.Color ?? "#000000"}'>";
                     }
-                    if (s.useFontColor) { strbuilder += "</font>"; }
+                    strbuilder += t.Name[0..1].ToUpper() + t.Name[1..];
+                    if (s.useFontColor)
+                    {
+                        strbuilder += "</font>";
+                    }
                     idx += 1;
                 }
                 strbuilder += ".";
@@ -294,6 +327,93 @@ namespace SpellResearchAlternateTomePatcher
                         IBookGetter? bookRecord = fixformidandresolve(state, modKey, spell.TomeFormID);
                         if (bookRecord != null)
                         {
+                            LevelSettings s;
+                            switch (spell.Tier.ToLower())
+                            {
+                                case "novice":
+                                    {
+                                        s = settings.Value.Novice;
+                                        break;
+                                    }
+                                case "apprentice":
+                                    {
+                                        s = settings.Value.Apprentice;
+                                        break;
+                                    }
+                                case "adept":
+                                    {
+                                        s = settings.Value.Adept;
+                                        break;
+                                    }
+                                case "expert":
+                                    {
+                                        s = settings.Value.Expert;
+                                        break;
+                                    }
+                                case "master":
+                                    {
+                                        s = settings.Value.Master;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        s = new();
+                                        break;
+                                    }
+                            }
+                            string desc = process_text(spell, archconfig, s).Trim();
+
+                            string? font = s.font;
+                            Regex rnamefix = new Regex("^.+\\s+(Tome)\\:?(?<tomename>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                            //var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
+                            string? name = fix_name(bookRecord, rnamefix);
+
+                            if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont"))
+                            {
+
+                                char[] tagsep = new char[] { '<', '>', '#', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+                                char[] separators = new char[] { '!', '@', '$', '%', '^', '&', '*', '(', ')', '{', '}', '[', ']', '-', '_', '+', ':', '"', ';', ',', '.', '?', '~' };
+
+                                desc = desc.ToUpper();
+                                name = name.ToUpper();
+
+                                string[] tempdesc = desc.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                                string[] tempname = name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+                                desc = string.Join("", tempdesc);
+                                name = string.Join("", tempname);
+                            }
+
+                            string PREAMBLE = $"<br><br><p align=\"center\"><font face='{font}'><font size='40'></font>";
+                            string imgpath = "";
+                            string img = "";
+
+                            if (s.useImage)
+                            {
+                                if (spell.Elements.Count > 0)
+                                {
+                                    imgpath = archconfig.Archetypes[spell.Elements[0].Name.ToLower()].Image ?? "";
+                                }
+                                else if (spell.Techniques.Count > 0)
+                                {
+                                    imgpath = archconfig.Archetypes[spell.Techniques[0].Name.ToLower()].Image ?? "";
+                                }
+
+                                if (!imgpath.Equals(""))
+                                {
+                                    img = $"<br><br><img src='img://{imgpath}' height='296' width='296'>";
+                                }
+                            }
+                            string PAGE = $"<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='{font}'><font size='40'></font>";
+                            string POST = "</font></p>";
+
+                            string? btext = PREAMBLE + name + img + PAGE + desc + POST;
+                            btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
+                            Console.WriteLine("DESC: {0}", btext);
+
+                            Book? bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
+                            bookOverride.Teaches = new BookTeachesNothing();
+                            bookOverride.BookText = btext;
                         }
                         else
                         {

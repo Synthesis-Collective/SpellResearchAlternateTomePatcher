@@ -8,9 +8,9 @@ namespace SpellResearchAlternateTomePatcher
 {
     public class Settings
     {
-        public LevelSettings novice = new();
-        public LevelSettings apprentice = new();
-        public LevelSettings adept = new();
+        public LevelSettings Novice = new();
+        public LevelSettings Apprentice = new();
+        public LevelSettings Adept = new();
         public LevelSettings Expert = new();
         public LevelSettings Master = new();
         public List<string> pscnames = new();
@@ -20,8 +20,10 @@ namespace SpellResearchAlternateTomePatcher
 
     public class LevelSettings
     {
+        public bool process = true;
         public string font = "";
         public bool useFontColor;
         public bool useImage;
+
     }
 }
