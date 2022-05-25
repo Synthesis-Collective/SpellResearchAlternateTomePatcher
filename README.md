@@ -2,13 +2,13 @@
 
 Intended to support JSON files used by https://www.nexusmods.com/skyrimspecialedition/mods/42381 and https://www.nexusmods.com/skyrimspecialedition/mods/48515.
 Current functionality:
-1. Reads the JSON file for the Mysticism patch.
-2. Updates the tomes.
+1. Reads the JSON file for the original JSON patch.
+2. Reads the JSON file for the Mysticism patch.
+3. Updates the tomes.
 
 Upcoming functionality:
-1. Read the patches of the classic JSON Patch format.
-2. Allow skipping tomes by level - as it stands, this + no starting spells = you're going to need an epic quest (or Faralda and 30 Septims) to unlock your first spell. *Can* it even be done without Fari, anyone mad enough to try?
-3. Restore old PSC file reading, but make it look slightly less awful. Nothing against you, Gutie, everything against Regex, necessary evil though it may be here.
+1. Allow skipping tomes by level - as it stands, this + no starting spells = you're going to need an epic quest (or Faralda and 30 Septims) to unlock your first spell. *Can* it even be done without Fari, anyone mad enough to try?
+2. Restore old PSC file reading, but make it look slightly less awful. Nothing against you, Gutie, everything against Regex, necessary evil though it may be here.
 
 Potential future functionality:
 1. Export the aforementioned PSC's to JSON files that can then be eaten by the JSON Patch.
