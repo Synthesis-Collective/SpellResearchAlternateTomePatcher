@@ -270,20 +270,14 @@ namespace SpellResearchAlternateTomePatcher
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            string archetypeListPath = Path.Combine(state.ExtraSettingsDataPath, "archetypes.json");
-            if (!File.Exists(archetypeListPath)) throw new ArgumentException($"Archetype list information missing! {archetypeListPath}");
-            ArchetypeList? allowedArchetypes = JsonConvert.DeserializeObject<ArchetypeList>(File.ReadAllText(archetypeListPath));
-            if (allowedArchetypes == null) throw new ArgumentException($"Error reading archetype list");
-            string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
-            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
-            string configText = File.ReadAllText(extraSettingsPath);
-            ArchetypeVisualInfo archconfig = ArchetypeVisualInfo.From(configText);
-            List<string> processedMods = new List<string>();
-            foreach (string configMod in settings.Value.jsonNames)
+            ArchetypeList allowedArchetypes = LoadArchetypes(state);
+            ArchetypeVisualInfo archconfig = LoadArchetypeVisualInfo(state);
+            List<string> processedMods = new();
+            List<(string mod, string json)> mods = new();
+            mods.AddRange(GetJsonHardlinkedMods());
+            mods.AddRange(GetJsonDiscoveredMods(state).Except(mods));
+            foreach ((string modName, string modPath) in mods)
             {
-                if (string.IsNullOrEmpty(configMod.Trim())) continue;
-                string modName = configMod.Split(';')[0].Trim();
-                string modPath = configMod.Split(';')[1].Trim();
                 Console.WriteLine($"Importing spells for {modName} from file {modPath}");
                 if (processedMods.Contains(modName))
                 {
@@ -619,6 +613,61 @@ namespace SpellResearchAlternateTomePatcher
             }
             */
         }
+        private static ArchetypeList LoadArchetypes(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            string archetypeListPath = Path.Combine(state.ExtraSettingsDataPath, "archetypes.json");
+            if (!File.Exists(archetypeListPath)) throw new ArgumentException($"Archetype list information missing! {archetypeListPath}");
+            ArchetypeList? allowedArchetypes = JsonConvert.DeserializeObject<ArchetypeList>(File.ReadAllText(archetypeListPath));
+            if (allowedArchetypes == null) throw new ArgumentException($"Error reading archetype list");
+            return allowedArchetypes;
+        }
+
+        private static ArchetypeVisualInfo LoadArchetypeVisualInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
+            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
+            string configText = File.ReadAllText(extraSettingsPath);
+            ArchetypeVisualInfo archconfig = ArchetypeVisualInfo.From(configText);
+            return archconfig;
+        }
+
+        private static List<(string mod, string json)> GetJsonHardlinkedMods()
+        {
+            return settings.Value.jsonNames.Select(x => (x.Split(";")[0].Trim(), x.Split(";")[1].Trim())).ToList();
+        }
+
+        private static List<(string mod, string json)> GetJsonDiscoveredMods(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            List<(string mod, string json)> mods = new();
+            foreach (string dir in settings.Value.jsonPaths)
+            {
+                try
+                {
+                    DirectoryInfo searchDir = new(Path.Combine(state.DataFolderPath, dir));
+                    foreach (FileInfo file in searchDir.GetFiles())
+                    {
+                        if (file.Extension == ".json")
+                        {
+                            string pluginName = file.Name.Substring(0, file.Name.LastIndexOf(file.Extension));
+                            ModKey? mod = state.LoadOrder.FirstOrDefault(plugin => plugin.Key.Name == pluginName)?.Key;
+                            if (mod == null)
+                            {
+                                Console.WriteLine($"Found JSON file {file.Name}, but no matching plugin");
+                                continue;
+                            }
+                            Console.WriteLine($"Found JSON file {file.Name}");
+                            mods.Add(new(mod.Value.FileName, Path.Combine(dir, file.Name)));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return mods;
+        }
 
     }
+
 }

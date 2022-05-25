@@ -36,7 +36,7 @@
     "MysticismMagic.esp;SKSE/Plugins/SpellResearchImport/MysticismMagic/SR_ImportMysticism.json"
   ],
   "jsonPaths": [
-    "SpellResearch",
+    "Spell Research",
     "SKSE/Plugins/SpellResearchImport"
   ]
 }
