@@ -38,10 +38,10 @@ namespace SpellResearchAlternateTomePatcher
         }
 
 
-        private static IBookGetter? fixformidandresolve(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, ModKey mk, string fid)
+        private static IBookGetter? FixFormIDAndResolve(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, ModKey mk, string fid)
         {
 
-            var fkey = fixformid(fid, mk);
+            var fkey = FixFormID(fid, mk);
 
             var bookLink = new FormLink<IBookGetter>(fkey);
 
@@ -61,7 +61,7 @@ namespace SpellResearchAlternateTomePatcher
 
                 foreach (var master in masters)
                 {
-                    var mfkey = fixformid(fid, master.Master);
+                    var mfkey = FixFormID(fid, master.Master);
                     var mbookLink = new FormLink<IBookGetter>(mfkey);
                     if (mbookLink.TryResolve(state.LinkCache, out var masterBookRecord))
                     {
@@ -75,22 +75,21 @@ namespace SpellResearchAlternateTomePatcher
         }
 
         // fixes some things with formids in spellresearch scripts and returns a formkey
-        private static FormKey fixformid(string fid, ModKey mk)
+        private static FormKey FixFormID(string fid, ModKey mk)
         {
-            FormKey formKey;
-            var fkeystr = fid + ":" + mk.FileName;
+            string? fkeystr = fid + ":" + mk.FileName;
 
             // hex value and too many zeroes
             if (fid.Contains("0x", StringComparison.OrdinalIgnoreCase))
             {
                 // first try to convert directly
-                if (FormKey.TryFactory(fkeystr, out formKey))
+                if (FormKey.TryFactory(fkeystr, out FormKey formKey))
                 {
                     return formKey;
                 }
 
                 // handle ESL's
-                if (fid.Substring(0, 2).Equals("FE"))
+                if (fid[..2].Equals("FE"))
                 {
                     fid = "00000" + fid.Substring(5, 3);
                 }
@@ -100,7 +99,7 @@ namespace SpellResearchAlternateTomePatcher
                     fid = fid.Replace("0x", "00").PadLeft(6, '0');
 
                     // hardcoded load order for some reason, (papyrus is fine with this apparently)
-                    if (fid.Length == 8 && !fid.Substring(0, 2).Equals("00"))
+                    if (fid.Length == 8 && !fid[..2].Equals("00"))
                     {
                         fid = "00" + fid.Substring(2, 6);
                     }
@@ -122,13 +121,13 @@ namespace SpellResearchAlternateTomePatcher
                 {
                     h = "0x" + h;
                 }
-                return fixformid(h, mk);
+                return FixFormID(h, mk);
 
             }
         }
 
         // removes 'Spell Tome' elements from description name
-        public static string fix_name(IBookGetter book, Regex rnamefix)
+        public static string FixName(IBookGetter book, Regex rnamefix)
         {
             var n = book?.Name?.ToString() ?? "";
             MatchCollection mnamefix = rnamefix.Matches(n);
@@ -142,7 +141,7 @@ namespace SpellResearchAlternateTomePatcher
         private static readonly string[] wovels = { "a", "e", "i", "o", "u" };
 
         // Creates a string description of a spell given its archetypes
-        private static string process_text(SpellInfo spell, ArchetypeVisualInfo archetypemap, LevelSettings s)
+        private static string ProcessText(SpellInfo spell, ArchetypeVisualInfo archetypemap, LevelSettings s)
         {
             string strbuilder = "";
             strbuilder += $"{(wovels.Contains(spell.Tier[0..1]) ? "An " : "A ")}{spell.Tier[0..1].ToUpper() + spell.Tier[1..]} spell of the ";
@@ -271,7 +270,7 @@ namespace SpellResearchAlternateTomePatcher
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             ArchetypeList allowedArchetypes = LoadArchetypes(state);
-            ArchetypeVisualInfo archconfig = LoadArchetypeVisualInfo(state);
+            ArchetypeVisualInfo archConfig = LoadArchetypeVisualInfo(state);
             List<string> processedMods = new();
             List<(string mod, string json)> mods = new();
             mods.AddRange(GetJsonHardlinkedMods());
@@ -296,125 +295,8 @@ namespace SpellResearchAlternateTomePatcher
                     continue;
                 }
                 string spellconf = File.ReadAllText(jsonPath);
-                SpellConfiguration spellinfo = SpellConfiguration.From(spellconf, allowedArchetypes);
-                if (spellinfo == null)
-                {
-                    Console.WriteLine("Failed to read JSON");
-                    return;
-                }
-                if (spellinfo.Spells.Count == 0)
-                {
-                    Console.WriteLine("No spells found");
-                    return;
-                }
-                foreach (SpellInfo spell in spellinfo.Spells)
-                {
-                    if (string.IsNullOrEmpty(spell.TomeESP)) continue;
-                    bool good_modkey = ModKey.TryFromFileName(spell.TomeESP, out ModKey modKey);
-                    if (!good_modkey)
-                    {
-                        Console.WriteLine($"Could not determine ESP key {spell.SpellESP} for {modName}");
-                        continue;
-                    }
-                    if (spell.TomeFormID != null)
-                    {
-                        IBookGetter? bookRecord = fixformidandresolve(state, modKey, spell.TomeFormID);
-                        if (bookRecord != null)
-                        {
-                            LevelSettings s;
-                            switch (spell.Tier.ToLower())
-                            {
-                                case "novice":
-                                    {
-                                        s = settings.Value.Novice;
-                                        break;
-                                    }
-                                case "apprentice":
-                                    {
-                                        s = settings.Value.Apprentice;
-                                        break;
-                                    }
-                                case "adept":
-                                    {
-                                        s = settings.Value.Adept;
-                                        break;
-                                    }
-                                case "expert":
-                                    {
-                                        s = settings.Value.Expert;
-                                        break;
-                                    }
-                                case "master":
-                                    {
-                                        s = settings.Value.Master;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        s = new();
-                                        break;
-                                    }
-                            }
-                            string desc = process_text(spell, archconfig, s).Trim();
-
-                            string? font = s.font;
-                            Regex rnamefix = new Regex("^.+\\s+(Tome)\\:?(?<tomename>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                            //var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
-                            string? name = fix_name(bookRecord, rnamefix);
-
-                            if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont"))
-                            {
-
-                                char[] tagsep = new char[] { '<', '>', '#', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-                                char[] separators = new char[] { '!', '@', '$', '%', '^', '&', '*', '(', ')', '{', '}', '[', ']', '-', '_', '+', ':', '"', ';', ',', '.', '?', '~' };
-
-                                desc = desc.ToUpper();
-                                name = name.ToUpper();
-
-                                string[] tempdesc = desc.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                                string[] tempname = name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-                                desc = string.Join("", tempdesc);
-                                name = string.Join("", tempname);
-                            }
-
-                            string PREAMBLE = $"<br><br><p align=\"center\"><font face='{font}'><font size='40'></font>";
-                            string imgpath = "";
-                            string img = "";
-
-                            if (s.useImage)
-                            {
-                                if (spell.Elements.Count > 0)
-                                {
-                                    imgpath = archconfig.Archetypes[spell.Elements[0].Name.ToLower()].Image ?? "";
-                                }
-                                else if (spell.Techniques.Count > 0)
-                                {
-                                    imgpath = archconfig.Archetypes[spell.Techniques[0].Name.ToLower()].Image ?? "";
-                                }
-
-                                if (!imgpath.Equals(""))
-                                {
-                                    img = $"<br><br><img src='img://{imgpath}' height='296' width='296'>";
-                                }
-                            }
-                            string PAGE = $"<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='{font}'><font size='40'></font>";
-                            string POST = "</font></p>";
-
-                            string? btext = PREAMBLE + name + img + PAGE + desc + POST;
-                            btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
-                            Console.WriteLine("DESC: {0}", btext);
-
-                            Book? bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
-                            bookOverride.Teaches = new BookTeachesNothing();
-                            bookOverride.BookText = btext;
-                        }
-                        else
-                        {
-                            Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeFormID);
-                        }
-                    }
-                }
+                SpellConfiguration spellInfo = SpellConfiguration.From(spellconf, allowedArchetypes);
+                ProcessSpells(state, modName, spellInfo, archConfig);
                 processedMods.Add(modName);
             }
 
@@ -648,7 +530,7 @@ namespace SpellResearchAlternateTomePatcher
                     {
                         if (file.Extension == ".json")
                         {
-                            string pluginName = file.Name.Substring(0, file.Name.LastIndexOf(file.Extension));
+                            string pluginName = file.Name[..file.Name.LastIndexOf(file.Extension)];
                             ModKey? mod = state.LoadOrder.FirstOrDefault(plugin => plugin.Key.Name == pluginName)?.Key;
                             if (mod == null)
                             {
@@ -666,6 +548,132 @@ namespace SpellResearchAlternateTomePatcher
                 }
             }
             return mods;
+        }
+
+        private static void ProcessSpells(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, string modName, SpellConfiguration spellInfo, ArchetypeVisualInfo archConfig)
+        {
+            if (spellInfo == null)
+            {
+                Console.WriteLine("Failed to read JSON");
+                return;
+            }
+            if (spellInfo.Spells.Count == 0)
+            {
+                Console.WriteLine("No spells found");
+                return;
+            }
+            foreach (SpellInfo spell in spellInfo.Spells)
+            {
+                if (string.IsNullOrEmpty(spell.TomeESP)) continue;
+                bool good_modkey = ModKey.TryFromFileName(spell.TomeESP, out ModKey modKey);
+                if (!good_modkey)
+                {
+                    Console.WriteLine($"Could not determine ESP key {spell.SpellESP} for {modName}");
+                    continue;
+                }
+                if (spell.TomeFormID != null)
+                {
+                    IBookGetter? bookRecord = FixFormIDAndResolve(state, modKey, spell.TomeFormID);
+                    if (bookRecord != null)
+                    {
+                        LevelSettings s;
+                        switch (spell.Tier.ToLower())
+                        {
+                            case "novice":
+                                {
+                                    s = settings.Value.Novice;
+                                    break;
+                                }
+                            case "apprentice":
+                                {
+                                    s = settings.Value.Apprentice;
+                                    break;
+                                }
+                            case "adept":
+                                {
+                                    s = settings.Value.Adept;
+                                    break;
+                                }
+                            case "expert":
+                                {
+                                    s = settings.Value.Expert;
+                                    break;
+                                }
+                            case "master":
+                                {
+                                    s = settings.Value.Master;
+                                    break;
+                                }
+                            default:
+                                {
+                                    s = new();
+                                    break;
+                                }
+                        }
+                        if (!s.process)
+                        {
+                            continue;
+                        }
+                        string desc = ProcessText(spell, archConfig, s).Trim();
+
+                        string? font = s.font;
+                        Regex rnamefix = new("^.+\\s+(Tome)\\:?(?<tomename>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                        //var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
+                        string? name = FixName(bookRecord, rnamefix);
+
+                        if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont"))
+                        {
+
+                            char[] tagsep = new char[] { '<', '>', '#', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+                            char[] separators = new char[] { '!', '@', '$', '%', '^', '&', '*', '(', ')', '{', '}', '[', ']', '-', '_', '+', ':', '"', ';', ',', '.', '?', '~' };
+
+                            desc = desc.ToUpper();
+                            name = name.ToUpper();
+
+                            string[] tempdesc = desc.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                            string[] tempname = name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+                            desc = string.Join("", tempdesc);
+                            name = string.Join("", tempname);
+                        }
+
+                        string PREAMBLE = $"<br><br><p align=\"center\"><font face='{font}'><font size='40'></font>";
+                        string imgpath = "";
+                        string img = "";
+
+                        if (s.useImage)
+                        {
+                            if (spell.Elements.Count > 0)
+                            {
+                                imgpath = archConfig.Archetypes[spell.Elements[0].Name.ToLower()].Image ?? "";
+                            }
+                            else if (spell.Techniques.Count > 0)
+                            {
+                                imgpath = archConfig.Archetypes[spell.Techniques[0].Name.ToLower()].Image ?? "";
+                            }
+
+                            if (!imgpath.Equals(""))
+                            {
+                                img = $"<br><br><img src='img://{imgpath}' height='296' width='296'>";
+                            }
+                        }
+                        string PAGE = $"<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='{font}'><font size='40'></font>";
+                        string POST = "</font></p>";
+
+                        string? btext = PREAMBLE + name + img + PAGE + desc + POST;
+                        btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
+                        Console.WriteLine("DESC: {0}", btext);
+
+                        Book? bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
+                        bookOverride.Teaches = new BookTeachesNothing();
+                        bookOverride.BookText = btext;
+                    }
+                    else
+                    {
+                        Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeFormID);
+                    }
+                }
+            }
         }
 
     }
