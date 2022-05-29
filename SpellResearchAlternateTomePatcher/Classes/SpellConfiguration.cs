@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SpellResearchAlternateTomePatcher.Classes
 {
@@ -9,7 +10,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
     {
         public List<SpellInfo> Spells { get; set; } = new List<SpellInfo>();
 
-        public static SpellConfiguration From(string spellconf, ArchetypeList allowedArchetypes)
+        public static SpellConfiguration FromJson(string spellconf, ArchetypeList allowedArchetypes)
         {
             SpellConfiguration config = new();
             if (spellconf.StartsWith("{"))
@@ -30,7 +31,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
         private static SpellConfiguration ParseMysticismFormat(JObject data, ArchetypeList allowedArchetypes)
         {
             // Mysticism JSON Patch handling
-            SpellConfiguration config = new SpellConfiguration();
+            SpellConfiguration config = new();
             JToken? newSpells = data["newSpells"];
             if (newSpells != null)
             {
@@ -170,7 +171,7 @@ namespace SpellResearchAlternateTomePatcher.Classes
         private static SpellConfiguration ParseJSONFormat(JArray data, ArchetypeList allowedArchetypes)
         {
             // Mysticism JSON Patch handling
-            SpellConfiguration config = new SpellConfiguration();
+            SpellConfiguration config = new();
             if (data != null)
             {
                 foreach (JToken newSpell in data)
@@ -301,6 +302,125 @@ namespace SpellResearchAlternateTomePatcher.Classes
                         TomeID = tomeID,
                         ScrollID = scrollID
                     });
+                }
+            }
+            return config;
+        }
+
+        private static readonly Regex rx = new("^.*\\(\\s*(?<fid>(0x)?[a-fA-F0-9]+),\\s\"(?<esp>.*\\.es[pml])\".*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+
+        private static readonly Regex rskill = new("^.*_SR_ListSpellsSkill(?<skill>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex rcasting = new("^.*_SR_ListSpellsCasting(?<casting>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex rlevel = new("^.*_SR_ListAllSpells[1-5](?<level>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex rtarget = new("^.*_SR_ListSpellsTarget(?<target>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex rtechnique = new("^.*_SR_ListSpellsTechnique(?<technique>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex relement = new("^.*_SR_ListSpellsElement(?<element>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static SpellConfiguration FromPsc(string spellconf, ArchetypeList allowedArchetypes)
+        {
+            SpellConfiguration config = new();
+            SpellInfo? spellInfo = null;
+            foreach (string line in spellconf.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries & StringSplitOptions.TrimEntries))
+            {
+                if (line.Contains("TempSpell", StringComparison.OrdinalIgnoreCase) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase))
+                {
+                    MatchCollection matches = rx.Matches(line);
+                    spellInfo = new();
+                    string fid = matches.First().Groups["fid"].Value.Trim();
+                    string esp = matches.First().Groups["esp"].Value.Trim();
+                    spellInfo.SpellID = string.Format("__formData|{0}|0x{1}", esp, fid);
+                }
+                else if (line.Contains("RemoveAddedForm", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                else if (line.Contains("TempTome", StringComparison.OrdinalIgnoreCase) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase) && spellInfo != null)
+                {
+                    MatchCollection matches = rx.Matches(line);
+                    string fid = matches.First().Groups["fid"].Value.Trim();
+                    string esp = matches.First().Groups["esp"].Value.Trim();
+
+                    spellInfo.TomeID = string.Format("__formData|{0}|0x{1}", esp, fid);
+                    config.Spells.Add(spellInfo);
+                    spellInfo = new SpellInfo();
+                }
+                // spellcount >= 1 to ignore all the spellresearch import stuff
+                else if (spellInfo != null)
+                {
+                    MatchCollection mskill = rskill.Matches(line);
+                    MatchCollection mcasting = rcasting.Matches(line);
+                    MatchCollection mlevel = rlevel.Matches(line);
+                    MatchCollection mtarget = rtarget.Matches(line);
+                    MatchCollection mtechnique = rtechnique.Matches(line);
+                    MatchCollection melement = relement.Matches(line);
+                    if (mskill.Count > 0)
+                    {
+                        string match = mskill.First().Groups["skill"].Value.Trim();
+                        AliasedArchetype? school = allowedArchetypes.Skills.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (school == null)
+                        {
+                            Console.WriteLine($"School {match} not found");
+                            continue;
+                        }
+                        spellInfo.School = school.Name;
+                    }
+                    else if (mcasting.Count > 0)
+                    {
+                        string match = mcasting.First().Groups["casting"].Value.Trim();
+                        AliasedArchetype? castingType = allowedArchetypes.CastingTypes.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (castingType == null)
+                        {
+                            Console.WriteLine($"Casting type {match} not found");
+                            continue;
+                        }
+                        spellInfo.CastingType = castingType.Name;
+                    }
+                    else if (mlevel.Count > 0)
+                    {
+                        string match = mlevel.First().Groups["level"].Value.Trim();
+                        AliasedArchetype? level = allowedArchetypes.Levels.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (level == null)
+                        {
+                            Console.WriteLine($"Level {match} not found");
+                            continue;
+                        }
+                        spellInfo.Tier = level.Name;
+                    }
+                    else if (mtarget.Count > 0)
+                    {
+                        string match = mtarget.First().Groups["target"].Value.Trim();
+                        AliasedArchetype? target = allowedArchetypes.Targets.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (target == null)
+                        {
+                            Console.WriteLine($"Targeting type {match} not found");
+                            continue;
+                        }
+                        spellInfo.Targeting.Add(target);
+                    }
+                    else if (mtechnique.Count > 0)
+                    {
+                        string match = mtechnique.First().Groups["technique"].Value.Trim();
+                        AliasedArchetype? technique = allowedArchetypes.Techniques.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (technique == null)
+                        {
+                            Console.WriteLine($"Technique {match} not found");
+                            continue;
+                        }
+                        spellInfo.Techniques.Add(technique);
+                    }
+                    else if (melement.Count > 0)
+                    {
+                        string match = melement.First().Groups["element"].Value.Trim();
+                        AliasedArchetype? element = allowedArchetypes.Elements.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));
+                        if (element == null)
+                        {
+                            Console.WriteLine($"Element {match} not found");
+                            continue;
+                        }
+                        spellInfo.Techniques.Add(element);
+                    }
+
                 }
             }
             return config;
