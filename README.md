@@ -1,18 +1,20 @@
 # JSON FORK
 
-Intended to support JSON files used by https://www.nexusmods.com/skyrimspecialedition/mods/42381 and https://www.nexusmods.com/skyrimspecialedition/mods/48515.
+Intended to support JSON files used by [Spell Research JSON Patch](https://www.nexusmods.com/skyrimspecialedition/mods/42381) and [Spell Research - JSON Mysticism Patch](https://www.nexusmods.com/skyrimspecialedition/mods/48515).
 Current functionality:
 1. Reads the JSON file for the original JSON patch.
 2. Reads the JSON file for the Mysticism patch.
 3. Updates the tomes.
+4. Skips tomes depending by level (for all my fellows who disable starting spells).
+5. Reads PSC files (tested with a few spell packs from the Spell Research Patch Compendium at [Spell Research Patch Compendium Redux](https://www.nexusmods.com/skyrimspecialedition/mods/61177).
 
 Upcoming functionality:
-1. Allow skipping tomes by level - as it stands, this + no starting spells = you're going to need an epic quest (or Faralda and 30 Septims) to unlock your first spell. *Can* it even be done without Fari, anyone mad enough to try?
-2. Restore old PSC file reading, but make it look slightly less awful. Nothing against you, Gutie, everything against Regex, necessary evil though it may be here.
+1. Export the imported spell data to JSON for proper importing
+2. Handle cases of several patches conflicting (ex. base game & Mysticism)
 
-Potential future functionality:
-1. Export the aforementioned PSC's to JSON files that can then be eaten by the JSON Patch.
-2. Update the export engine to support the Mysticism patch's formatting and fish out any changes to vanilla spells similar to it (which will probably only be relevant to Odin users) and create a copy of Kalithnir's plugin to process the newly generated patch.
+Potential functionality (will be implemented if and only if I can be bothered - and figure out how):
+1. Automatically generate template files from your load order (that'd still require a great deal of manual untangling, but the hope would be that the user would no longer need to dig for FormID's, at least.
+2. Let the books grant you relevant Archetype XP (potentially with skill gating).
 
 # Gutie's Legacy - I touched none of this yet
 

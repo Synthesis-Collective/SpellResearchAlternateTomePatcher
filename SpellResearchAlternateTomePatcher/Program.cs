@@ -274,10 +274,6 @@ namespace SpellResearchAlternateTomePatcher
             List<string> processedMods = new();
             List<(string mod, string file)> mods = new();
             mods.AddRange(GetJsonHardlinkedMods());
-            foreach (var line in mods)
-            {
-                Console.WriteLine(string.Format("{0}/{1}", line.mod, line.file));
-            }
             mods.AddRange(GetJsonDiscoveredMods(state).Where(mod => !mods.Any(existing => existing.mod == mod.mod)));
             mods.AddRange(GetPscMods().Where(mod => !mods.Any(existing => existing.mod == mod.mod)));
             foreach ((string modName, string modPath) in mods)
