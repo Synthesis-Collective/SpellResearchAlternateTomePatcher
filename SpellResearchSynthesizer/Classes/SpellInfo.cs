@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SpellResearchAlternateTomePatcher.Classes
+namespace SpellResearchSynthesizer.Classes
 {
     public class SpellInfo
     {

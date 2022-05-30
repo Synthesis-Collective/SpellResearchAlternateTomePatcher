@@ -1,4 +1,4 @@
-namespace SpellResearchAlternateTomePatcher.Classes
+namespace SpellResearchSynthesizer.Classes
 {
     public class ArchetypeDisplayParameters
     {

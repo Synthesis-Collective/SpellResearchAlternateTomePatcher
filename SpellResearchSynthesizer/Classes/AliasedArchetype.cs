@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace SpellResearchAlternateTomePatcher.Classes
+namespace SpellResearchSynthesizer.Classes
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class AliasedArchetype

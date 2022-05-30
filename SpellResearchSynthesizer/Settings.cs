@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpellResearchAlternateTomePatcher
+namespace SpellResearchSynthesizer
 {
     public class Settings
     {
@@ -13,6 +13,7 @@ namespace SpellResearchAlternateTomePatcher
         public LevelSettings Adept = new();
         public LevelSettings Expert = new();
         public LevelSettings Master = new();
+        public bool CopyFiles = true;
         public List<string> pscnames = new();
         public List<string> jsonNames = new();
         public List<string> jsonPaths = new();

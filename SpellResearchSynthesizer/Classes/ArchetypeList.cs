@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpellResearchAlternateTomePatcher.Classes
+namespace SpellResearchSynthesizer.Classes
 {
     [JsonObject(MemberSerialization.OptIn)]
     public partial class ArchetypeList

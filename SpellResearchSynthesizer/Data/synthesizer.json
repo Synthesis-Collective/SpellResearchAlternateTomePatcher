@@ -29,6 +29,7 @@
     "useImage": true,
     "process": true
   },
+  "CopyFiles": true,
   "pscnames": [
     "Skyrim.esm;_SR_ImportSkyrim.psc"
   ],
