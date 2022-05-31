@@ -516,7 +516,7 @@ namespace SpellResearchSynthesizer
 
                             if (!imgpath.Equals(""))
                             {
-                                img = $"<br><br><img src='img://{imgpath}' height='471' width='296'>";
+                                img = $"<br><br><img src='img://{imgpath}' height='296' width='296'>";
                             }
                         }
                         string PAGE = $"<br><br></p>[pagebreak]<br><br><p align=\"left\"><font face='{font}'><font size='40'></font>";
