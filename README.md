@@ -7,9 +7,8 @@ Current functionality:
 3. Updates the tomes.
 4. Skips tomes depending by level (for all my fellows who disable starting spells).
 5. Reads PSC files (tested with a few spell packs from the Spell Research Patch Compendium at [Spell Research Patch Compendium Redux](https://www.nexusmods.com/skyrimspecialedition/mods/61177).
-6. Copies the DDS files from Spell Research Book to required directory
-7. Detects spell overwrites
-8. Exports the imported spell data as JSON for proper importing
+6. Detects and resolves spell overwrites
+7. Exports the imported spell data as JSON for proper importing
 
 Upcoming functionality:
 1. Allow creating patches that aren't linked to an ESP and/or allow binding multiple patches to the companion ESP.
