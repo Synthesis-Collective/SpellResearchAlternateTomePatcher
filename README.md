@@ -12,6 +12,7 @@ Current functionality:
 8. Exports the imported spell data as JSON for proper importing
 
 Upcoming functionality:
+1. Allow creating patches that aren't linked to an ESP and/or allow binding multiple patches to the companion ESP.
 1. Alchemy/Artifact support
 
 Potential functionality (will be implemented if and only if I can be bothered - and figure out how):
