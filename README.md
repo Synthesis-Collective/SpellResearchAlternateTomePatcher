@@ -1,4 +1,4 @@
-# JSON FORK
+# SPELL RESEARCH SYNTHESIZER
 
 Intended to support JSON files used by [Spell Research JSON Patch](https://www.nexusmods.com/skyrimspecialedition/mods/42381) and [Spell Research - JSON Mysticism Patch](https://www.nexusmods.com/skyrimspecialedition/mods/48515).
 Current functionality:
