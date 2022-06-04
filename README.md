@@ -13,82 +13,33 @@ Current functionality:
 
 Upcoming functionality:
 1. Allow creating patches that aren't linked to an ESP and/or allow binding multiple patches to the companion ESP.
-1. Alchemy/Artifact support
+2. Alchemy/Artifact support
 
 Potential functionality (will be implemented if and only if I can be bothered - and figure out how):
 1. Automatically generate template files from your load order (that'd still require a great deal of manual untangling, but the hope would be that the user would no longer need to dig for FormID's, at least.
 2. Let the books grant you relevant Archetype XP (potentially with skill gating).
 
-# Gutie's Legacy - I touched none of this yet
+## Options
 
-# SpellResearchAlternateTomePatcher
+* Spell Levels
+  * Allows specific treatment of each spell level tomes
+  * Options:
+  * Process: Whether to alter spell tomes for this level to display spell archetypes instead of tteaching you the spell directly. By default, Novice spells are excluded for the sake of players (like myself) that remove starting spells. Will not affect spell tomes that aren't found in any (valid) patches.
+  * Font: Font used to fill in the text. Recommended picking from these values, may be possible to use custom fonts:
+    * $SkyrimBooks
+    * $HandwrittenFont
+    * $DaedricFont
+    * $DragonFont
+    * $DragonFont
+    * $FalmerFont
+    * $MageScriptFont
+  * Use Font Color: Whether to color the words for archetypes in the text. Hex colors, defined in config.json.
+  * Use Image: Whether to illustrate the tome's first page according to the first archetype found.
+    * Default setup (can be changed in config.json) comes from [Spell Research - Experience Book](https://www.nexusmods.com/skyrimspecialedition/mods/28355). Since I can't package them with my mod and the path in the .bsa is not supported by books, you'll need to manually extract them - the expected location for the .dds files is in "textures/interface/exported/widgets/spellresearchbook/textures/".
 
-Make sure you are using the required, or later version of mutagen, patching with mutagen versions prior to the required version will cause CTD's.
-
-## Update - Fonts, Colors, and Images
-Make sure to reload your settings if you used this patcher before.\
-For each skill level, you have the option to select the following:\
-- Text Font
-- Whether the books will have an image
-- Whether the text archetypes will be colored
-
-The fonts can be any of:
-- $SkyrimBooks
-- $HandwrittenFont
-- $DaedricFont
-- $DragonFont
-- $DragonFont
-- $FalmerFont
-- $MageScriptFont
-
-See https://www.creationkit.com/index.php?title=Book for depictions. You can probably also make and addyour own fonts.
-
-The image will be based on the first archetype found from elements/techniques, a mapping of archetypes to images can be found in the file config.json located in the synthesis patcher data folder. In order for the images to show correctly, the path must direct to a dds/png file, it must also start with the root folder textures. e.g.\
-"textures/interface/exported/widgets/spellresearchbook/textures/archetype_2.dds". The set of textures in the default config file is from the mod [Spell Research - Experience Book](https://www.nexusmods.com/skyrimspecialedition/mods/28355). Note the root folder for the textures in that mod is 'interface', so in order for those to work you have to extract them from the bsa and copy the interfaces folder into a new folder called 'textures'
-
-The archetype colors are also defined in the config file, any hexadecimal representation will do.
-<!-- ![book1](https://user-images.githubusercontent.com/98627298/152105281-5a76f057-09d2-4d8e-bd68-a1c397f2629c.JPG) -->
-<!-- ![book2](https://user-images.githubusercontent.com/98627298/152105316-1c2db180-470f-4e80-a54d-a1ee1534b0a6.JPG) -->
-<p float="left">
-<img src="https://user-images.githubusercontent.com/98627298/152105281-5a76f057-09d2-4d8e-bd68-a1c397f2629c.JPG" width="400">
-<img src="https://user-images.githubusercontent.com/98627298/152105316-1c2db180-470f-4e80-a54d-a1ee1534b0a6.JPG" width="400">  
-</p>
-
-## Description
-Same as the [zEdit patcher](https://www.nexusmods.com/skyrimspecialedition/mods/39301), but in Synthesis.
-
-This patcher prevents spell books from teaching spells and instead changes the book text to describe the archetypes needed to learn them with spell research.
-
-Only books that are 'correctly' patched with a spell research patch will be affected. If a spell book doesn't have a patch, or the patch is somehow incorrect, it will not be affected and will function as normal.
-
-Some examples:
-
-Flames:
-A Novice spell of the destruction school, cast through immense Concentration. This spell is fired where Aimed. Elements of Fire. 
-
-Candlelight:
-A Novice spell of the Alteration school, cast by Firing and Forgetting. This spell is cast on Oneself. Elements of Construct and Light. 
-
-Revenant:
-A Adept spell of the Conjuration school, cast by Firing and Forgetting. This spell is fired where Aimed. Elements of Creature, Flesh, Soul and Undead. The technique to cast this spell is of Control, Infuse and Summoning.
-
-
-## Usage
-Select what formats you want for each skill level, see update notes for details.\
-Add mods to be patched in the setting 'Pscnames' using the format: espname:scriptname
-
-Pscnames example\
-Skyrim.esm;_SR_ImportSkyrim.psc\
-Dawnguard.esm;_SR_ImportDawnguard.psc\
-Dragonborn.esm;_SR_ImportDragonborn.psc\
-Inigo.esp;SpellResearchInigo.psc
-
-The scripts need to exists in Data/Scripts/Source/*.psc
-
-e.g.\
-data/scripts/source/_SR_ImportSkyrim.psc\
-data/scripts/source/_SR_ImportDawnguard.psc
-
-## Reccommendations
-Recommended to get [Spell Research Patch Compendium Redux](https://www.nexusmods.com/skyrimspecialedition/mods/61177) for Spell Research Patches.
-
+* Json Names
+  * Paths to JSON files for specific mods. These patches will take priority over all other patches. Supports JSON files formatted for [Spell Research Json Patch](https://www.nexusmods.com/skyrimspecialedition/mods/42381) or [Spell Research -JSON Mysticism Patch](https://www.nexusmods.com/skyrimspecialedition/mods/48515). Includes the Mysticism patch by default.
+* Json Paths
+  * Paths to folders to search for other patches. The .JSON file name, without extension, must match the file name of the .ESP (also without extension.) Takes priority over PSC patches. Includes locations for JSON Patch and the Synthesizer itself by default.
+* Pscnames
+  * List of semicolon-separated pairs of plugin names and paths to .PSC patch files. Default configuration includes all patches from the [Spell Research Patch Compendium](https://www.nexusmods.com/skyrimspecialedition/mods/61177).
