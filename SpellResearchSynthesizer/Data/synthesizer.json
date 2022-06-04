@@ -29,7 +29,6 @@
     "useImage": true,
     "process": true
   },
-  "CopyFiles": true,
   "pscnames": [
     "Skyrim.esm;_SR_ImportSkyrim.psc",
     "Dawnguard.esm;_SR_ImportDawnguard.psc",
@@ -327,6 +326,7 @@
     "MysticismMagic.esp;SKSE/Plugins/SpellResearchImport/MysticismMagic/SR_ImportMysticism.json"
   ],
   "jsonPaths": [
+    "SpellResearchSynthesizer",
     "Spell Research",
     "SKSE/Plugins/SpellResearchImport"
   ]

@@ -8,10 +8,11 @@ Current functionality:
 4. Skips tomes depending by level (for all my fellows who disable starting spells).
 5. Reads PSC files (tested with a few spell packs from the Spell Research Patch Compendium at [Spell Research Patch Compendium Redux](https://www.nexusmods.com/skyrimspecialedition/mods/61177).
 6. Copies the DDS files from Spell Research Book to required directory
+7. Detects spell overwrites
+8. Exports the imported spell data as JSON for proper importing
 
 Upcoming functionality:
-1. Export the imported spell data to JSON for proper importing
-2. Handle cases of several patches conflicting (ex. base game & Mysticism)
+1. Alchemy/Artifact support
 
 Potential functionality (will be implemented if and only if I can be bothered - and figure out how):
 1. Automatically generate template files from your load order (that'd still require a great deal of manual untangling, but the hope would be that the user would no longer need to dig for FormID's, at least.

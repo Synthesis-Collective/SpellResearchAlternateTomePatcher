@@ -13,10 +13,9 @@ namespace SpellResearchSynthesizer
         public LevelSettings Adept = new();
         public LevelSettings Expert = new();
         public LevelSettings Master = new();
-        public bool CopyFiles = true;
-        public List<string> pscnames = new();
         public List<string> jsonNames = new();
         public List<string> jsonPaths = new();
+        public List<string> pscnames = new();
     }
 
     public class LevelSettings

@@ -37,107 +37,6 @@ namespace SpellResearchSynthesizer
 
         }
 
-
-        private static IBookGetter? FixFormIDAndResolve(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, ModKey mk, string fid)
-        {
-
-            var fkey = FixFormID(fid, mk);
-
-            var bookLink = new FormLink<IBookGetter>(fkey);
-
-
-            // if things are normal
-            if (bookLink.TryResolve(state.LinkCache, out var bookRecord))
-            {
-                return bookRecord;
-            }
-
-            //if things are messed up 
-            else
-            {
-
-                var mod = state.LoadOrder.TryGetValue(mk);
-                var masters = mod?.Mod?.ModHeader.MasterReferences ?? new List<MasterReference>();
-
-                foreach (var master in masters)
-                {
-                    var mfkey = FixFormID(fid, master.Master);
-                    var mbookLink = new FormLink<IBookGetter>(mfkey);
-                    if (mbookLink.TryResolve(state.LinkCache, out var masterBookRecord))
-                    {
-                        return masterBookRecord;
-                    }
-                }
-            }
-
-            Console.WriteLine("ERROR: Could not fix {0}", fkey);
-            return null;
-        }
-
-        // fixes some things with formids in spellresearch scripts and returns a formkey
-        private static FormKey FixFormID(string fid, ModKey mk)
-        {
-            string? fkeystr = fid + ":" + mk.FileName;
-
-            // hex value and too many zeroes
-            if (fid.Contains("0x", StringComparison.OrdinalIgnoreCase))
-            {
-                // first try to convert directly
-                if (FormKey.TryFactory(fkeystr, out FormKey formKey))
-                {
-                    return formKey;
-                }
-
-                // handle ESL's
-                if (fid[..2].Equals("FE"))
-                {
-                    fid = "00000" + fid.Substring(5, 3);
-                }
-                else
-                {
-                    // to make str processing easier
-                    fid = fid.Replace("0x", "00").PadLeft(6, '0');
-
-                    // hardcoded load order for some reason, (papyrus is fine with this apparently)
-                    if (fid.Length == 8 && !fid[..2].Equals("00"))
-                    {
-                        fid = "00" + fid.Substring(2, 6);
-                    }
-                    // needs to be 8 digits for mutagen
-                    if (fid.Length > 6)
-                    {
-                        fid = fid.Substring(fid.Length - 6, 6);
-                    }
-                }
-                fkeystr = fid + ":" + mk.FileName;
-                return FormKey.Factory(fkeystr);
-            }
-            // decimal value
-            else
-            {
-                int num = Convert.ToInt32(fid, 10);
-                string h = num.ToString("X");
-                if (!h.Contains("0x", StringComparison.OrdinalIgnoreCase))
-                {
-                    h = "0x" + h;
-                }
-                return FixFormID(h, mk);
-
-            }
-        }
-
-        // removes 'Spell Tome' elements from description name
-        public static string FixName(IBookGetter book, Regex rnamefix)
-        {
-            var n = book?.Name?.ToString() ?? "";
-            MatchCollection mnamefix = rnamefix.Matches(n);
-            if (mnamefix.Count > 0)
-            {
-                n = mnamefix.First().Groups["tomename"].Value.Trim();
-            }
-
-            return n;
-        }
         private static readonly string[] wovels = { "a", "e", "i", "o", "u" };
 
         // Creates a string description of a spell given its archetypes
@@ -270,81 +169,93 @@ namespace SpellResearchSynthesizer
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             ArchetypeList allowedArchetypes = LoadArchetypes(state);
-            ArchetypeVisualInfo archConfig = LoadArchetypeVisualInfo(state);
-            if (settings.Value.CopyFiles)
+            string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
+            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
+            string configText = File.ReadAllText(extraSettingsPath);
+            ArchetypeVisualInfo archConfig = LoadArchetypeVisualInfo(configText);
+            JToken? researchDataLists = LoadResearchDataLists(configText);
+            if (researchDataLists == null)
             {
-                CopyTextureFiles(state);
+                Console.WriteLine("Error reading data lists");
+                return;
             }
-            List<string> processedMods = new();
-            List<(string mod, string file)> mods = new();
-            mods.AddRange(GetJsonHardlinkedMods());
-            mods.AddRange(GetJsonDiscoveredMods(state).Where(mod => !mods.Any(existing => existing.mod == mod.mod)));
-            mods.AddRange(GetPscMods().Where(mod => !mods.Any(existing => existing.mod == mod.mod)));
-            foreach ((string modName, string modPath) in mods)
+            Dictionary<string, string> mods = new();
+            foreach ((string mod, string file) in GetJsonHardlinkedMods())
             {
-                Console.WriteLine($"Importing spells for {modName} from file {modPath}");
-                if (processedMods.Contains(modName))
+                if (!mods.ContainsKey(mod))
                 {
-                    Console.WriteLine($"Mod {modName} already imported, skipping");
+                    mods[mod] = file;
+                }
+                else
+                {
+                    Console.WriteLine($"Duplicate detected: {file} for {mod}");
+                }
+            }
+            foreach ((string mod, string file) in GetJsonDiscoveredMods(state))
+            {
+                if (!mods.ContainsKey(mod))
+                {
+                    mods[mod] = file;
+                }
+                else
+                {
+                    Console.WriteLine($"Duplicate detected: {file} for {mod}");
+                }
+            }
+            foreach ((string mod, string file) in GetPscMods())
+            {
+                if (!mods.ContainsKey(mod))
+                {
+                    mods[mod] = file;
+                }
+                else
+                {
+                    Console.WriteLine($"Duplicate detected: {file} for {mod}");
+                }
+            }
+            List<(string mod, SpellConfiguration spells)> output = new();
+            foreach (Noggog.IKeyValue<IModListing<ISkyrimModGetter>, ModKey>? mod in state.LoadOrder)
+            {
+                string? scriptFile = mods.GetValueOrDefault(mod.Key.FileName);
+                if (string.IsNullOrEmpty(scriptFile))
+                {
                     continue;
                 }
-                if (!state.LoadOrder.ContainsKey(modName))
+                Console.WriteLine($"Importing {mod} from {scriptFile}");
+                if (scriptFile.EndsWith(".json"))
                 {
-                    Console.WriteLine($"Mod {modName} not found");
-                    continue;
-                }
-                if (modPath.EndsWith(".json"))
-                {
-                    string jsonPath = Path.Combine(state.DataFolderPath, modPath);
+                    string jsonPath = Path.Combine(state.DataFolderPath, scriptFile);
                     if (!File.Exists(jsonPath))
                     {
                         Console.WriteLine($"JSON file {jsonPath} not found");
                         continue;
                     }
                     string spellconf = File.ReadAllText(jsonPath);
-                    SpellConfiguration spellInfo = SpellConfiguration.FromJson(spellconf, allowedArchetypes);
-                    ProcessSpells(state, modName, spellInfo, archConfig);
+                    output.Add((mod.Key.FileName, SpellConfiguration.FromJson(state, spellconf, allowedArchetypes)));
                 }
-                else if (modPath.EndsWith(".psc"))
+                else if (scriptFile.EndsWith(".psc"))
                 {
-                    string pscPath = Path.Combine(state.DataFolderPath, modPath);
+                    string pscPath = Path.Combine(state.DataFolderPath, scriptFile);
                     if (!File.Exists(pscPath))
                     {
                         Console.WriteLine($"PSC file {pscPath} not found");
                         continue;
                     }
                     string spellconf = File.ReadAllText(pscPath);
-                    SpellConfiguration spellInfo = SpellConfiguration.FromPsc(spellconf, allowedArchetypes);
-                    ProcessSpells(state, modName, spellInfo, archConfig);
+                    output.Add((mod.Key.FileName, SpellConfiguration.FromPsc(state, spellconf, allowedArchetypes)));
                 }
-                processedMods.Add(modName);
             }
-        }
-
-        private static void CopyTextureFiles(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
-        {
-            Console.WriteLine("Copying texture files");
-            string sourcePath = "interface/SpellResearchBook/";
-            string targetPath = "textures/interface/exported/widgets/spellresearchbook/textures/";
-            DirectoryInfo sourceDir = new(Path.Combine(state.DataFolderPath, sourcePath));
-            DirectoryInfo targetDir = new(Path.Combine(state.DataFolderPath, targetPath));
-            CopyRecurse(sourceDir, targetDir);
-        }
-
-        private static void CopyRecurse(DirectoryInfo sourceDir, DirectoryInfo targetDir)
-        {
-            if (!targetDir.Exists)
+            SpellConfiguration cleanedOutput = CleanOutput(output);
+            OutputTemplate jsonOutput = new()
             {
-                Directory.CreateDirectory(targetDir.FullName);
-            }
-            foreach (FileInfo file in sourceDir.GetFiles())
-            {
-                file.CopyTo(Path.Combine(targetDir.FullName, file.Name), true);
-            }
-            foreach (DirectoryInfo dir in sourceDir.GetDirectories())
-            {
-                CopyRecurse(dir, new DirectoryInfo(Path.Combine(targetDir.FullName, sourceDir.Name)));
-            }
+                ResearchDataLists = researchDataLists,
+                NewSpells = cleanedOutput.Mods.SelectMany(mod => mod.Value.NewSpells).ToList(),
+                RemovedSpells = cleanedOutput.Mods.SelectMany(mod => mod.Value.RemovedSpells).ToList()
+            };
+            string path = state.DataFolderPath + @"\SKSE\Plugins\SpellResearchSynthesizer";
+            Directory.CreateDirectory(path);
+            File.WriteAllText(path + @"\SynthesizedPatch.json", JsonConvert.SerializeObject(jsonOutput, Formatting.Indented));
+            ProcessSpells(state, cleanedOutput, archConfig);
         }
 
         private static ArchetypeList LoadArchetypes(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -356,13 +267,15 @@ namespace SpellResearchSynthesizer
             return allowedArchetypes;
         }
 
-        private static ArchetypeVisualInfo LoadArchetypeVisualInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        private static ArchetypeVisualInfo LoadArchetypeVisualInfo(string configText)
         {
-            string extraSettingsPath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
-            if (!File.Exists(extraSettingsPath)) throw new ArgumentException($"Archetype display settings missing! {extraSettingsPath}");
-            string configText = File.ReadAllText(extraSettingsPath);
             ArchetypeVisualInfo archconfig = ArchetypeVisualInfo.From(configText);
             return archconfig;
+        }
+
+        private static JToken? LoadResearchDataLists(string configText)
+        {
+            return JObject.Parse(configText)["researchDataLists"];
         }
 
         private static List<(string mod, string json)> GetJsonHardlinkedMods()
@@ -383,7 +296,7 @@ namespace SpellResearchSynthesizer
                         if (file.Extension == ".json")
                         {
                             string pluginName = file.Name[..file.Name.LastIndexOf(file.Extension)];
-                            ModKey? mod = state.LoadOrder.FirstOrDefault(plugin => plugin.Key.Name == pluginName)?.Key;
+                            ModKey? mod = state.LoadOrder.FirstOrDefault(plugin => plugin.Key.Name.ToLower() == pluginName.ToLower())?.Key;
                             if (mod == null)
                             {
                                 Console.WriteLine($"Found JSON file {file.Name}, but no matching plugin");
@@ -406,38 +319,63 @@ namespace SpellResearchSynthesizer
         {
             return settings.Value.pscnames.Select(x => (x.Split(";")[0].Trim(), x.Split(";")[1].Trim())).ToList();
         }
+        private static SpellConfiguration CleanOutput(List<(string mod, SpellConfiguration spells)> output)
+        {
+            SpellConfiguration result = new();
+            foreach ((_, SpellConfiguration spellConfiguration) in output)
+            {
+                foreach ((string mod, (List<SpellInfo> NewSpells, List<SpellInfo> RemovedSpells) spells) in spellConfiguration.Mods)
+                {
+                    foreach (SpellInfo spell in spells.NewSpells)
+                    {
+                        if (!result.Mods.ContainsKey(spell.SpellESP))
+                        {
+                            result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>()));
+                        }
+                        SpellInfo? oldEntry = result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(x => x.SpellID.ToLower() == spell.SpellID.ToLower());
+                        if (oldEntry != null)
+                        {
+                            result.Mods[spell.SpellESP].NewSpells.Remove(oldEntry);
+                            result.Mods[spell.SpellESP].RemovedSpells.Add(oldEntry);
+                        }
+                        result.Mods[spell.SpellESP].NewSpells.Add(spell);
+                    }
+                    foreach (SpellInfo spell in spells.RemovedSpells)
+                    {
+                        result.Mods[spell.SpellESP].RemovedSpells.Add(spell);
+                    }
+                }
+            }
 
-        private static void ProcessSpells(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, string modName, SpellConfiguration spellInfo, ArchetypeVisualInfo archConfig)
+            return result;
+        }
+
+        private static void ProcessSpells(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, SpellConfiguration spellInfo, ArchetypeVisualInfo archConfig)
         {
             if (spellInfo == null)
             {
                 Console.WriteLine("Failed to read file");
                 return;
             }
-            if (spellInfo.Spells.Count == 0)
+            if (!spellInfo.Mods.SelectMany(mod => mod.Value.NewSpells).Any())
             {
                 Console.WriteLine("No spells found");
                 return;
             }
-            foreach (SpellInfo spell in spellInfo.Spells)
+            foreach ((string modName, (List<SpellInfo> spells, _)) in spellInfo.Mods)
             {
-                if (string.IsNullOrEmpty(spell.TomeESP)) continue;
-                bool good_modkey = ModKey.TryFromFileName(spell.TomeESP, out ModKey modKey);
-                if (!good_modkey)
+                foreach (SpellInfo spell in spells)
                 {
-                    Console.WriteLine($"Could not determine ESP key {spell.SpellESP} for {modName}");
-                    continue;
-                }
-                if (spell.TomeFormID != null)
-                {
-                    IBookGetter? bookRecord = FixFormIDAndResolve(state, modKey, spell.TomeFormID);
+                    if (spell.TomeForm == null) continue;
+                    IBookGetter? bookRecord = spell.TomeForm;
                     if (bookRecord == null)
                     {
-                        Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeFormID);
+                        Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeForm);
                         continue;
                     }
                     else
                     {
+                        Console.WriteLine(bookRecord);
                         LevelSettings s;
                         switch (spell.Tier.ToLower())
                         {
@@ -481,7 +419,7 @@ namespace SpellResearchSynthesizer
                         string? font = s.font;
                         Regex rnamefix = new("^.+\\s+(Tome)\\:?(?<tomename>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                         //var font = config["Fonts"]?[archetypemap["level"]].ToString() ?? "$HandwrittenFont";
-                        string? name = FixName(bookRecord, rnamefix);
+                        string? name = bookRecord.Name?.String ?? $"Spell Tome: {spell.Name}";
 
                         if (font.Equals("$FalmerFont") || font.Equals("$DragonFont") || font.Equals("$MageScriptFont"))
                         {
