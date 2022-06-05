@@ -3,20 +3,20 @@
 Intended to support JSON files used by [Spell Research JSON Patch](https://www.nexusmods.com/skyrimspecialedition/mods/42381) and [Spell Research - JSON Mysticism Patch](https://www.nexusmods.com/skyrimspecialedition/mods/48515).
 Current functionality:
 1. Reads the JSON file for the original JSON patch.
-2. Reads the JSON file for the Mysticism patch.
+2. Reads the JSON file for the Mysticism patch (as well as supporting a new field for added/removed artifacts/ingredients).
 3. Updates the tomes.
 4. Skips tomes depending by level (for all my fellows who disable starting spells).
 5. Reads PSC files (tested with a few spell packs from the Spell Research Patch Compendium at [Spell Research Patch Compendium Redux](https://www.nexusmods.com/skyrimspecialedition/mods/61177).
-6. Detects and resolves spell overwrites
-7. Exports the imported spell data as JSON for proper importing
-
-Upcoming functionality:
-1. Allow creating patches that aren't linked to an ESP and/or allow binding multiple patches to the companion ESP.
-2. Alchemy/Artifact support
+6. Detects and resolves spell/artifact overwrites (last mod in your LO wins).
+7. Exports the imported spell/artifact data as JSON for proper importing.
+8. Allows binding multiple patches to single ESP, if using specific JSONs for mods.
 
 Potential functionality (will be implemented if and only if I can be bothered - and figure out how):
 1. Automatically generate template files from your load order (that'd still require a great deal of manual untangling, but the hope would be that the user would no longer need to dig for FormID's, at least.
 2. Let the books grant you relevant Archetype XP (potentially with skill gating).
+
+# Updating
+If you used the patcher previously, your configuration files may be out of date. The only fix I know of is manually replacing them, or deleting them and re-adding the patcher.
 
 ## Options
 
