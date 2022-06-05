@@ -179,23 +179,20 @@ namespace SpellResearchSynthesizer
                 Console.WriteLine("Error reading data lists");
                 return;
             }
-            Dictionary<string, string> mods = new();
+            Dictionary<string, List<string>> mods = new();
             foreach ((string mod, string file) in GetJsonHardlinkedMods())
             {
                 if (!mods.ContainsKey(mod))
                 {
-                    mods[mod] = file;
+                    mods[mod] = new List<string>();
                 }
-                else
-                {
-                    Console.WriteLine($"Duplicate detected: {file} for {mod}");
-                }
+                mods[mod].Add(file);
             }
             foreach ((string mod, string file) in GetJsonDiscoveredMods(state))
             {
                 if (!mods.ContainsKey(mod))
                 {
-                    mods[mod] = file;
+                    mods[mod] = new List<string>() { file };
                 }
                 else
                 {
@@ -206,7 +203,7 @@ namespace SpellResearchSynthesizer
             {
                 if (!mods.ContainsKey(mod))
                 {
-                    mods[mod] = file;
+                    mods[mod] = new List<string>() { file };
                 }
                 else
                 {
@@ -216,33 +213,37 @@ namespace SpellResearchSynthesizer
             List<(string mod, SpellConfiguration spells)> output = new();
             foreach (Noggog.IKeyValue<IModListing<ISkyrimModGetter>, ModKey>? mod in state.LoadOrder)
             {
-                string? scriptFile = mods.GetValueOrDefault(mod.Key.FileName);
-                if (string.IsNullOrEmpty(scriptFile))
+                List<string>? scriptFiles = mods.GetValueOrDefault(mod.Key.FileName);
+                if (scriptFiles == null) continue;
+                foreach (string scriptFile in scriptFiles)
                 {
-                    continue;
-                }
-                Console.WriteLine($"Importing {mod} from {scriptFile}");
-                if (scriptFile.EndsWith(".json"))
-                {
-                    string jsonPath = Path.Combine(state.DataFolderPath, scriptFile);
-                    if (!File.Exists(jsonPath))
+                    if (string.IsNullOrEmpty(scriptFile))
                     {
-                        Console.WriteLine($"JSON file {jsonPath} not found");
                         continue;
                     }
-                    string spellconf = File.ReadAllText(jsonPath);
-                    output.Add((mod.Key.FileName, SpellConfiguration.FromJson(state, spellconf, allowedArchetypes)));
-                }
-                else if (scriptFile.EndsWith(".psc"))
-                {
-                    string pscPath = Path.Combine(state.DataFolderPath, scriptFile);
-                    if (!File.Exists(pscPath))
+                    Console.WriteLine($"Importing {mod.Key.FileName} from {scriptFile}");
+                    if (scriptFile.EndsWith(".json"))
                     {
-                        Console.WriteLine($"PSC file {pscPath} not found");
-                        continue;
+                        string jsonPath = Path.Combine(state.DataFolderPath, scriptFile);
+                        if (!File.Exists(jsonPath))
+                        {
+                            Console.WriteLine($"JSON file {jsonPath} not found");
+                            continue;
+                        }
+                        string spellconf = File.ReadAllText(jsonPath);
+                        output.Add((mod.Key.FileName, SpellConfiguration.FromJson(state, spellconf, allowedArchetypes)));
                     }
-                    string spellconf = File.ReadAllText(pscPath);
-                    output.Add((mod.Key.FileName, SpellConfiguration.FromPsc(state, spellconf, allowedArchetypes)));
+                    else if (scriptFile.EndsWith(".psc"))
+                    {
+                        string pscPath = Path.Combine(state.DataFolderPath, scriptFile);
+                        if (!File.Exists(pscPath))
+                        {
+                            Console.WriteLine($"PSC file {pscPath} not found");
+                            continue;
+                        }
+                        string spellconf = File.ReadAllText(pscPath);
+                        output.Add((mod.Key.FileName, SpellConfiguration.FromPsc(state, spellconf, allowedArchetypes)));
+                    }
                 }
             }
             SpellConfiguration cleanedOutput = CleanOutput(output);
@@ -250,7 +251,9 @@ namespace SpellResearchSynthesizer
             {
                 ResearchDataLists = researchDataLists,
                 NewSpells = cleanedOutput.Mods.SelectMany(mod => mod.Value.NewSpells).ToList(),
-                RemovedSpells = cleanedOutput.Mods.SelectMany(mod => mod.Value.RemovedSpells).ToList()
+                RemovedSpells = cleanedOutput.Mods.SelectMany(mod => mod.Value.RemovedSpells).ToList(),
+                NewArtifacts = cleanedOutput.Mods.SelectMany(mod => mod.Value.NewArtifacts).ToList(),
+                RemovedArtifacts = cleanedOutput.Mods.SelectMany(mod => mod.Value.RemovedArtifacts).ToList()
             };
             string path = state.DataFolderPath + @"\SKSE\Plugins\SpellResearchSynthesizer";
             Directory.CreateDirectory(path);
@@ -324,13 +327,13 @@ namespace SpellResearchSynthesizer
             SpellConfiguration result = new();
             foreach ((_, SpellConfiguration spellConfiguration) in output)
             {
-                foreach ((string mod, (List<SpellInfo> NewSpells, List<SpellInfo> RemovedSpells) spells) in spellConfiguration.Mods)
+                foreach ((string mod, (List<SpellInfo> NewSpells, List<SpellInfo> RemovedSpells, List<ArtifactInfo> NewArtifacts, List<ArtifactInfo> RemovedArtifacts) forms) in spellConfiguration.Mods)
                 {
-                    foreach (SpellInfo spell in spells.NewSpells)
+                    foreach (SpellInfo spell in forms.NewSpells)
                     {
                         if (!result.Mods.ContainsKey(spell.SpellESP))
                         {
-                            result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>()));
+                            result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
                         }
                         SpellInfo? oldEntry = result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(x => x.SpellID.ToLower() == spell.SpellID.ToLower());
                         if (oldEntry != null)
@@ -340,9 +343,27 @@ namespace SpellResearchSynthesizer
                         }
                         result.Mods[spell.SpellESP].NewSpells.Add(spell);
                     }
-                    foreach (SpellInfo spell in spells.RemovedSpells)
+                    foreach (SpellInfo spell in forms.RemovedSpells)
                     {
                         result.Mods[spell.SpellESP].RemovedSpells.Add(spell);
+                    }
+                    foreach (ArtifactInfo artifact in forms.NewArtifacts)
+                    {
+                        if (!result.Mods.ContainsKey(artifact.ArtifactESP))
+                        {
+                            result.Mods.Add(artifact.ArtifactESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
+                        }
+                        ArtifactInfo? oldEntry = result.Mods[artifact.ArtifactESP].NewArtifacts.FirstOrDefault(x => x.ArtifactID.ToLower() == artifact.ArtifactID.ToLower());
+                        if (oldEntry != null)
+                        {
+                            result.Mods[artifact.ArtifactESP].NewArtifacts.Remove(oldEntry);
+                            result.Mods[artifact.ArtifactESP].RemovedArtifacts.Add(oldEntry);
+                        }
+                        result.Mods[artifact.ArtifactESP].NewArtifacts.Add(artifact);
+                    }
+                    foreach (ArtifactInfo artifact in forms.RemovedArtifacts)
+                    {
+                        result.Mods[artifact.ArtifactESP].RemovedArtifacts.Add(artifact);
                     }
                 }
             }
@@ -362,7 +383,7 @@ namespace SpellResearchSynthesizer
                 Console.WriteLine("No spells found");
                 return;
             }
-            foreach ((string modName, (List<SpellInfo> spells, _)) in spellInfo.Mods)
+            foreach ((string modName, (List<SpellInfo> spells, _, _, _)) in spellInfo.Mods)
             {
                 foreach (SpellInfo spell in spells)
                 {

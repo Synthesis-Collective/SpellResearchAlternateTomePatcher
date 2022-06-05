@@ -212,11 +212,11 @@
   "techniques": [
     {
       "name": "cloak",
-      "aliases": ["cloaking"]
+      "aliases": [ "cloaking" ]
     },
     {
       "name": "control",
-      "aliases": ["controlling"]
+      "aliases": [ "controlling" ]
     },
     {
       "name": "courage",
@@ -228,7 +228,7 @@
     },
     {
       "name": "curse",
-      "aliases": ["cursing"]
+      "aliases": [ "cursing" ]
     },
     {
       "name": "fear",
@@ -240,23 +240,23 @@
     },
     {
       "name": "infuse",
-      "aliases": ["infusing"]
+      "aliases": [ "infusing" ]
     },
     {
       "name": "pacify",
-      "aliases": ["pacifying"]
+      "aliases": [ "pacifying" ]
     },
     {
       "name": "sense",
-      "aliases": ["sensing"]
+      "aliases": [ "sensing" ]
     },
     {
       "name": "siphon",
-      "aliases": ["siphoning"]
+      "aliases": [ "siphoning" ]
     },
     {
       "name": "strengthen",
-      "aliases": ["strengthening"]
+      "aliases": [ "strengthening" ]
     },
     {
       "name": "summoning",
@@ -268,7 +268,8 @@
     },
     {
       "name": "transform",
-      "aliases": ["transforming"]
+      "aliases": [ "transforming" ]
     }
-  ]
+  ],
+  "artifactTiers":  [0, 1, 2, 3, 4, 5]
 }

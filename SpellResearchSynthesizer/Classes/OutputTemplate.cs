@@ -15,6 +15,10 @@ namespace SpellResearchSynthesizer.Classes
         public List<SpellInfo> NewSpells { get; set; } = new List<SpellInfo>();
         [JsonProperty("removedSpells")]
         public List<SpellInfo> RemovedSpells { get; set; } = new List<SpellInfo>();
+        [JsonProperty("newArtifacts")]
+        public List<ArtifactInfo> NewArtifacts { get; set; } = new List<ArtifactInfo>();
+        [JsonProperty("removedArtifacts")]
+        public List<ArtifactInfo> RemovedArtifacts { get; set; } = new List<ArtifactInfo>();
         [JsonProperty("researchDataLists")]
         public JToken? ResearchDataLists { get; set; }
     }

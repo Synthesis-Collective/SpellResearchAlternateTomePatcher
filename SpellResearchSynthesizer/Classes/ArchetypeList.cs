@@ -22,5 +22,7 @@ namespace SpellResearchSynthesizer.Classes
         public List<AliasedArchetype> Elements { get; set; } = new List<AliasedArchetype>();
         [JsonProperty(PropertyName = "techniques")]
         public List<AliasedArchetype> Techniques { get; set; } = new List<AliasedArchetype>();
+        [JsonProperty("artifactTiers")]
+        public List<int> ArtifactTiers { get; set; } = new List<int>();
     }
 }
