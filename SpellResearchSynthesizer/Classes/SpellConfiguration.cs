@@ -591,6 +591,7 @@ namespace SpellResearchSynthesizer.Classes
             SpellInfo? spellInfo = null;
             ArtifactInfo? artifactInfo = null;
             int nestLevel = 0;
+            int spellIndent = 0;
             foreach (string line in spellconf.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries & StringSplitOptions.TrimEntries))
             {
                 if (line.Trim().StartsWith("if "))
@@ -600,10 +601,11 @@ namespace SpellResearchSynthesizer.Classes
                 else if (line.Trim().StartsWith("endif"))
                 {
                     nestLevel--;
-                    if (nestLevel == 0)
+                    if (nestLevel <= spellIndent)
                     {
                         if (spellInfo?.SpellForm != null)
                         {
+                            
                             if (!config.Mods.ContainsKey(spellInfo.SpellESP))
                             {
                                 config.Mods.Add(spellInfo.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
@@ -624,6 +626,7 @@ namespace SpellResearchSynthesizer.Classes
                 }
                 if (line.Contains("TempSpell", StringComparison.OrdinalIgnoreCase) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase))
                 {
+                    spellIndent = nestLevel;
                     MatchCollection matches = rx.Matches(line);
                     spellInfo = new();
                     string fid = matches.First().Groups["fid"].Value.Trim();
@@ -640,6 +643,7 @@ namespace SpellResearchSynthesizer.Classes
                 }
                 else if ((line.Contains("TempIngredient", StringComparison.OrdinalIgnoreCase) || line.Contains("TempArtifact", StringComparison.OrdinalIgnoreCase)) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase))
                 {
+                    spellIndent = nestLevel;
                     MatchCollection matches = rx.Matches(line);
                     artifactInfo = new();
                     string fid = matches.First().Groups["fid"].Value.Trim();
