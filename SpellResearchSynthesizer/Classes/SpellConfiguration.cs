@@ -594,18 +594,18 @@ namespace SpellResearchSynthesizer.Classes
             int spellIndent = 0;
             foreach (string line in spellconf.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries & StringSplitOptions.TrimEntries))
             {
-                if (line.Trim().StartsWith("if "))
+                if (line.Trim().ToLower().StartsWith("if ") || line.Trim().ToLower().StartsWith("if("))
                 {
                     nestLevel++;
                 }
-                else if (line.Trim().StartsWith("endif"))
+                else if (line.Trim().ToLower().StartsWith("endif"))
                 {
                     nestLevel--;
                     if (nestLevel <= spellIndent)
                     {
                         if (spellInfo?.SpellForm != null)
                         {
-                            
+
                             if (!config.Mods.ContainsKey(spellInfo.SpellESP))
                             {
                                 config.Mods.Add(spellInfo.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
@@ -669,7 +669,7 @@ namespace SpellResearchSynthesizer.Classes
                 else if (line.Contains("TempScroll", StringComparison.OrdinalIgnoreCase) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase))
                 {
                     MatchCollection matches = rx.Matches(line);
-                    spellInfo = new();
+                    if (spellInfo == null) spellInfo = new();
                     string fid = matches.First().Groups["fid"].Value.Trim();
                     string esp = matches.First().Groups["esp"].Value.Trim();
                     spellInfo.ScrollID = string.Format("__formData|{0}|{1}", esp, fid);
@@ -687,6 +687,7 @@ namespace SpellResearchSynthesizer.Classes
                 else if (line.Contains("TempTome", StringComparison.OrdinalIgnoreCase) && line.Contains("GetFormFromFile", StringComparison.OrdinalIgnoreCase) && spellInfo != null)
                 {
                     MatchCollection matches = rx.Matches(line);
+                    if (spellInfo == null) spellInfo = new();
                     string fid = matches.First().Groups["fid"].Value.Trim();
                     string esp = matches.First().Groups["esp"].Value.Trim();
 
