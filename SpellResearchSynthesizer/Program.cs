@@ -387,7 +387,7 @@ namespace SpellResearchSynthesizer
             {
                 foreach (SpellInfo spell in spells)
                 {
-                    if (spell.TomeForm == null) continue;
+                    if ((!spell.Enabled) || spell.TomeForm == null) continue;
                     IBookGetter? bookRecord = spell.TomeForm;
                     if (bookRecord == null)
                     {
