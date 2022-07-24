@@ -182,17 +182,17 @@ namespace SpellResearchSynthesizer
             Dictionary<string, List<string>> mods = new();
             foreach ((string mod, string file) in GetJsonHardlinkedMods())
             {
-                if (!mods.ContainsKey(mod))
+                if (!mods.ContainsKey(mod.ToLower()))
                 {
-                    mods[mod] = new List<string>();
+                    mods[mod.ToLower()] = new List<string>();
                 }
-                mods[mod].Add(file);
+                mods[mod.ToLower()].Add(file);
             }
             foreach ((string mod, string file) in GetJsonDiscoveredMods(state))
             {
-                if (!mods.ContainsKey(mod))
+                if (!mods.ContainsKey(mod.ToLower()))
                 {
-                    mods[mod] = new List<string>() { file };
+                    mods[mod.ToLower()] = new List<string>() { file };
                 }
                 else
                 {
@@ -201,9 +201,9 @@ namespace SpellResearchSynthesizer
             }
             foreach ((string mod, string file) in GetPscMods())
             {
-                if (!mods.ContainsKey(mod))
+                if (!mods.ContainsKey(mod.ToLower()))
                 {
-                    mods[mod] = new List<string>() { file };
+                    mods[mod.ToLower()] = new List<string>() { file };
                 }
                 else
                 {
@@ -213,7 +213,7 @@ namespace SpellResearchSynthesizer
             List<(string mod, SpellConfiguration spells)> output = new();
             foreach (Noggog.IKeyValue<IModListing<ISkyrimModGetter>, ModKey>? mod in state.LoadOrder)
             {
-                List<string>? scriptFiles = mods.GetValueOrDefault(mod.Key.FileName);
+                List<string>? scriptFiles = mods.GetValueOrDefault(mod.Key.FileName.String.ToLower());
                 if (scriptFiles == null) continue;
                 foreach (string scriptFile in scriptFiles)
                 {
