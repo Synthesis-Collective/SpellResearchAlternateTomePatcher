@@ -335,7 +335,7 @@ namespace SpellResearchSynthesizer
                         {
                             result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
                         }
-                        SpellInfo? oldEntry = result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(x => x.SpellID.ToLower() == spell.SpellID.ToLower());
+                        SpellInfo? oldEntry = result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(x => x.SpellFormID == spell.SpellFormID);
                         if (oldEntry != null)
                         {
                             result.Mods[spell.SpellESP].NewSpells.Remove(oldEntry);
@@ -388,7 +388,7 @@ namespace SpellResearchSynthesizer
                 foreach (SpellInfo spell in spells)
                 {
                     if ((!spell.Enabled) || spell.TomeForm == null) continue;
-                    IBookGetter? bookRecord = spell.TomeForm;
+                    IBookGetter? bookRecord = state.LinkCache.TryResolve<IBookGetter>(spell.TomeForm.FormKey, out IBookGetter? _out) ? _out : null;
                     if (bookRecord == null)
                     {
                         Console.WriteLine("ERROR: Could Not Resolve {0}", spell.TomeForm);
@@ -484,7 +484,6 @@ namespace SpellResearchSynthesizer
                         string? btext = PREAMBLE + name + img + PAGE + desc + POST;
                         btext = Regex.Replace(btext, @"FONT\s*(COLOR)*", m => m.Value.ToLower());
                         Console.WriteLine("DESC: {0}", btext);
-
                         Book? bookOverride = state.PatchMod.Books.GetOrAddAsOverride(bookRecord);
                         bookOverride.Teaches = new BookTeachesNothing();
                         bookOverride.BookText = btext;
