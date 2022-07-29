@@ -1,0 +1,9 @@
+{
+  "Nickname": "Spell Research Synthesizer",
+  "Visibility": "Visible",
+  "OneLineDescription": "Combine multiple Spell Research Patches into one, and optionally alter tomes",
+  "LongDescription": "",
+  "PreferredAutoVersioning": "Default",
+  "RequiredMods": [],
+  "TargetedReleases": []
+}

@@ -211,8 +211,9 @@ namespace SpellResearchSynthesizer
                 }
             }
             List<(string mod, SpellConfiguration spells)> output = new();
-            foreach (Noggog.IKeyValue<IModListing<ISkyrimModGetter>, ModKey>? mod in state.LoadOrder)
+            foreach (Noggog.IKeyValue<ModKey, IModListing<ISkyrimModGetter>>? mod in state.LoadOrder)
             {
+                if (mod == null) continue;
                 List<string>? scriptFiles = mods.GetValueOrDefault(mod.Key.FileName.String.ToLower());
                 if (scriptFiles == null) continue;
                 foreach (string scriptFile in scriptFiles)
