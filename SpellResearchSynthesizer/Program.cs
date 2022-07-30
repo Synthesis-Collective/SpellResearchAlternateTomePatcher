@@ -347,15 +347,23 @@ namespace SpellResearchSynthesizer
             {
                 foreach ((string mod, (List<SpellInfo> NewSpells, List<SpellInfo> RemovedSpells, List<ArtifactInfo> NewArtifacts, List<ArtifactInfo> RemovedArtifacts) forms) in spellConfiguration.Mods)
                 {
+                    foreach (SpellInfo spell in forms.RemovedSpells)
+                    {
+                        Console.WriteLine($"Removing spell {spell.Name} from {spell.SpellESP}");
+                        result.Mods[spell.SpellESP].NewSpells.Remove(result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(s => s.SpellFormID == spell.SpellFormID) ?? new SpellInfo());
+                        result.Mods[spell.SpellESP].RemovedSpells.Add(spell);
+                    }
                     foreach (SpellInfo spell in forms.NewSpells)
                     {
                         if (!result.Mods.ContainsKey(spell.SpellESP))
                         {
+                            Console.WriteLine($"Adding mod {spell.SpellESP}");
                             result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));
                         }
                         SpellInfo? oldEntry = result.Mods[spell.SpellESP].NewSpells.FirstOrDefault(x => x.SpellFormID == spell.SpellFormID);
                         if (oldEntry != null)
                         {
+                            Console.WriteLine($"Removing spell {oldEntry.Name} from {spell.SpellESP} (overwritten by {spell.Name} from {mod})");
                             result.Mods[spell.SpellESP].NewSpells.Remove(oldEntry);
                             result.Mods[spell.SpellESP].RemovedSpells.Add(oldEntry);
                         }
@@ -378,11 +386,8 @@ namespace SpellResearchSynthesizer
                                 Enabled = false
                             });
                         }
+                        Console.WriteLine($"Adding spell {spell.Name} to {spell.SpellESP}");
                         result.Mods[spell.SpellESP].NewSpells.Add(spell);
-                    }
-                    foreach (SpellInfo spell in forms.RemovedSpells)
-                    {
-                        result.Mods[spell.SpellESP].RemovedSpells.Add(spell);
                     }
                     foreach (ArtifactInfo artifact in forms.NewArtifacts)
                     {
@@ -409,6 +414,7 @@ namespace SpellResearchSynthesizer
                 List<SpellInfo> HardRemoved = forms.NewSpells.Where(s => s.HardRemoved).ToList();
                 foreach (SpellInfo s in HardRemoved)
                 {
+                    Console.WriteLine($"Hard removing {s.Name} from {mod}");
                     forms.NewSpells.Remove(s);
                     forms.RemovedSpells.Add(s);
                 }
