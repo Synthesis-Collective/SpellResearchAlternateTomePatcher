@@ -48,5 +48,7 @@ namespace SpellResearchSynthesizer.Classes
         public string? JsonScrollID => ScrollForm == null ? null : $"__formData|{ScrollESP}|0x{ScrollFormID}";
         [JsonProperty("discoverable")]
         public bool Enabled { get; set; } = true;
+        [JsonProperty("hardRemoved")]
+        public bool HardRemoved { get; set; } = false;
     }
 }

@@ -197,6 +197,7 @@ namespace SpellResearchSynthesizer.Classes
             string? tomeID = (string?)newSpell["tomeId"];
             string? scrollID = (string?)newSpell["scrollId"];
             bool discoverable = (bool?)newSpell["discoverable"] ?? true;
+            bool hardRemoved = (bool?)newSpell["hardRemoved"] ?? false;
             SpellInfo spell = new()
             {
                 SpellID = spellID,
@@ -209,7 +210,8 @@ namespace SpellResearchSynthesizer.Classes
                 Techniques = foundTechniques,
                 TomeID = tomeID,
                 ScrollID = scrollID,
-                Enabled = discoverable
+                Enabled = discoverable,
+                HardRemoved = hardRemoved
             };
             ISpellGetter? spellForm = CheckSpellFormID(state, spell.SpellESP, spell.SpellFormID);
             if (spellForm == null)
