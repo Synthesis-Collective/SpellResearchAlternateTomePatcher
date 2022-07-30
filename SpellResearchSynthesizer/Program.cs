@@ -260,6 +260,23 @@ namespace SpellResearchSynthesizer
             Directory.CreateDirectory(path);
             File.WriteAllText(path + @"\SynthesizedPatch.json", JsonConvert.SerializeObject(jsonOutput, Formatting.Indented));
             ProcessSpells(state, cleanedOutput, archConfig);
+            if (settings.Value.RemoveStartingSpells)
+            {
+                Console.WriteLine("Removing starting spells...");
+                try
+                {
+                    INpcGetter player = state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>().First(npc => npc.FormKey.ToString() == "000007:Skyrim.esm");
+                    Npc playerOverride = state.PatchMod.Npcs.GetOrAddAsOverride(player);
+                    IEnumerable<ISpellGetter> spells = state.LoadOrder.PriorityOrder.WinningOverrides<ISpellGetter>().Where(spell => new string[] { "012FCC:Skyrim.esm", "012FCD:Skyrim.esm" }.Contains(spell.FormKey.ToString()));
+                    if (playerOverride.ActorEffect != null)
+                        playerOverride.ActorEffect.Remove(spells);
+                    Console.WriteLine("Spells removed");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message, ex.StackTrace);
+                }
+            }
         }
 
         private static ArchetypeList LoadArchetypes(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -332,6 +349,7 @@ namespace SpellResearchSynthesizer
                 {
                     foreach (SpellInfo spell in forms.NewSpells)
                     {
+                        spell.Enabled = spell.Enabled || settings.Value.IgnoreDiscoverable;
                         if (!result.Mods.ContainsKey(spell.SpellESP))
                         {
                             result.Mods.Add(spell.SpellESP, (new List<SpellInfo>(), new List<SpellInfo>(), new List<ArtifactInfo>(), new List<ArtifactInfo>()));

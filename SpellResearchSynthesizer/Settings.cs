@@ -13,6 +13,8 @@ namespace SpellResearchSynthesizer
         public LevelSettings Adept = new();
         public LevelSettings Expert = new();
         public LevelSettings Master = new();
+        public bool IgnoreDiscoverable = false;
+        public bool RemoveStartingSpells = false;
         public List<string> jsonNames = new();
         public List<string> jsonPaths = new();
         public List<string> pscnames = new();
