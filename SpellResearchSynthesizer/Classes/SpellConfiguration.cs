@@ -571,7 +571,7 @@ namespace SpellResearchSynthesizer.Classes
 
         private static readonly Regex rx = new("^.*\\(\\s*(?<fid>(0x)?[a-fA-F0-9]+),\\s\"(?<esp>.*\\.es[pml])\".*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-
+        private static readonly Regex rUndiscoverable = new("^.*_SR_ListUndiscoverableSpells.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex rLevel = new("^.*_SR_ListAllSpells[1-5](?<level>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex rSkill = new("^.*_SR_ListSpellsSkill(?<skill>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex rCasting = new("^.*_SR_ListSpellsCasting(?<casting>[A-Za-z]+).*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -704,13 +704,18 @@ namespace SpellResearchSynthesizer.Classes
                 // spellcount >= 1 to ignore all the spellresearch import stuff
                 else if (spellInfo != null)
                 {
+                    MatchCollection mUndiscoverable = rUndiscoverable.Matches(line);
                     MatchCollection mSkill = rSkill.Matches(line);
                     MatchCollection mCasting = rCasting.Matches(line);
                     MatchCollection mLevel = rLevel.Matches(line);
                     MatchCollection mTarget = rTarget.Matches(line);
                     MatchCollection mTechnique = rTechnique.Matches(line);
                     MatchCollection mElement = rElement.Matches(line);
-                    if (mSkill.Count > 0)
+                    if (mUndiscoverable.Count > 0)
+                    {
+                        spellInfo.Enabled = false;
+                    }
+                    else if (mSkill.Count > 0)
                     {
                         string match = mSkill.First().Groups["skill"].Value.Trim();
                         AliasedArchetype? school = allowedArchetypes.Skills.FirstOrDefault(archetype => archetype.Name.ToLower() == match.ToLower() || archetype.Aliases.Any(alias => alias.ToLower() == match.ToLower()));

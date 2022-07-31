@@ -367,7 +367,7 @@ namespace SpellResearchSynthesizer
                             result.Mods[spell.SpellESP].NewSpells.Remove(oldEntry);
                             result.Mods[spell.SpellESP].RemovedSpells.Add(oldEntry);
                         }
-                        if (settings.Value.IgnoreDiscoverable && !spell.HardRemoved && spell.TomeForm != null && !spell.Enabled)
+                        if (settings.Value.IgnoreDiscoverable && (!spell.HardRemoved) && (spell.TomeForm != null) && (!spell.Enabled))
                         {
                             Console.WriteLine($"Overriding discoverability of spell {spell.Name}");
                             spell.Enabled = true;
